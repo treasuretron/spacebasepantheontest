@@ -1,0 +1,11 @@
+<div class="dropdown">
+    <button class="btn btn-default dropdown-toggle" type="button" id="searchBy" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Search within: {{ active }}
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="searchBy">
+        {% for link in links %}
+            <li class="{{ link.active ? 'active':'' }}">{{ link.link }}</li>
+        {% endfor %}
+    </ul>
+</div>

@@ -1,0 +1,14 @@
+name: Toggle Editable Fields
+type: module
+description: It provides a toggle formatter to edit fields in it view representation for Boolean field type. This variant takes out the toggle formatter and just uses the ajax for the boolean checkbox.
+# core: 8.x
+package: Fields
+dependencies:
+  - drupal:field
+  - drupal:field_ui
+
+# Information added by Drupal.org packaging script on 2017-12-21
+version: '8.x-1.0-spacebase-variant'
+core: '8.x'
+project: 'toggle_editable_fields'
+datestamp: 1513868287

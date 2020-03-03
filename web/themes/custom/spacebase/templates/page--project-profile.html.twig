@@ -1,0 +1,96 @@
+
+{% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
+
+{% include '@spacebase/includes/header.html.twig' %}
+
+{# Main #}
+{% block main %}
+  <div role="main" class="main-container profile {{ container }} js-quickedit-main-content">
+
+    {# Header #}
+    {% if page.header %}
+      <div class="row">
+        {% block header %}
+          <div class="col-sm-12" role="heading">
+            {{ page.header }}
+          </div>
+        {% endblock %}
+      </div>
+    {% endif %}
+    <div class="row">
+
+      <section{{ content_attributes }}>
+
+        {# Highlighted #}
+        {% if page.highlighted %}
+          {% block highlighted %}
+            <div class="highlighted">{{ page.highlighted }}</div>
+          {% endblock %}
+        {% endif %}
+
+        {# Help #}
+        {% if page.help %}
+          {% block help %}
+            {{ page.help }}
+          {% endblock %}
+        {% endif %}
+
+
+
+        {# Content #}
+        {% block content %}
+          <a id="main-content"></a>
+
+
+          {#    MIKE: which way should we do this?   Standard sidebars or hard-code
+          template? Erase the other, and remove from blocks I think (the sidebar_first is
+          set up in the browser, but I don't see where it's used.) #}
+
+
+          {# Group profile in right sidebar.#}
+          <div class="row profile-inner">
+            <aside class="col-sm-3 pull-right">
+              <div class="box">
+                {% if groupid %}
+                  {# this is a forum node -> gid preprocessed from node #}
+                  {{ drupal_view('project_group_profile', 'block_summary', groupid) }}
+                {% else %}
+                  {# url contains group — view will find it #}
+                  {{ drupal_view('project_group_profile', 'block_summary')}}
+                {% endif %}
+              </div>
+            </aside>
+
+
+            {# Sidebar First  Discuss with Mike putting it back like this?
+            {% if page.sidebar_first %}
+              {% block sidebar_first %}
+                <aside class="col-sm-3 pull-right" role="complementary">
+                  <box>
+                  {{ page.sidebar_first }}
+                  </box>
+                </aside>
+              {% endblock %}
+            {% endif %}
+      #}
+
+
+
+            <article{{ attributes.addClass('col-sm-9') }}>
+              {{ drupal_block('org_menu_block') }}
+              <div class="box">
+                {{ page.content }}
+              </div>
+            </article>
+          </div>
+
+        {% endblock %}
+      </section>
+    </div>
+  </div>
+{% endblock %}
+
+{% include '@spacebase/includes/footer.html.twig' %}
+
+
+<div class="body-overlay"></div>

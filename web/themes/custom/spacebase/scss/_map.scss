@@ -1,0 +1,213 @@
+/**
+ * Map and Chart styles
+ */
+.leaflet-popup-content {
+  .field--name-field-image {
+    float: right;
+    padding: 0 0 .5em .5em;
+  }
+  h2 {
+    font-size: 13px;
+    margin-bottom: 0px;
+  }
+  p {
+    margin: 9px 0;
+  }
+}
+
+h1.map-title{
+  z-index: 998;
+  display: block;
+  background: #56abc2;
+  box-shadow: 0 3px 7px rgba(0,0,0,0.3);
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+  position: relative;
+  @media screen and (min-width:768px){
+    font-size: 44px;
+    padding: 10px 30px;
+    margin: 0;
+  }
+  @media screen and (max-width:767px){
+    font-size: 22px;
+    padding: 5px 10px;
+    margin: 0;
+  }
+}
+
+body.map{
+  .main-container{
+    @media screen and (min-width:768px){
+      padding-top: 80px !important;
+    }
+    @media screen and (max-width:767px){
+      padding-top: 85px !important;
+    }
+  }
+  h1.page-title{
+    display: none;
+  }
+}
+
+#maps-charts-row {
+  position: relative;
+  margin: 0 !important;
+  background: #abd3de;
+  overflow: hidden;
+  padding-top: 0 !important;
+  @media screen and (min-width:768px){
+    padding-bottom: 0 !important;
+    .chart-tabs{
+      position: static;
+    }
+    .tabs{
+      position: absolute;
+      top: 16px;
+      right: 25px;
+      width: 290px;
+      z-index: 1001;
+    }
+    .charts{
+      width: 300px;
+      position: absolute;
+      top: 45px;
+      right: 20px;
+      bottom: 30px;
+      border-radius: 2px;
+      background: #fff;
+    }
+    .map{
+      #leaflet-map{
+        height: calc(100vh - 223px) !important;
+        min-height: 500px !important;
+      }
+    }
+  }
+  @media screen and (max-width:767px){
+    
+    .chart-tabs{
+      position: relative;
+      z-index: 1002;
+    }
+    .tabs{
+      margin-top: -31px !important;
+      z-index: 1001;
+      margin-right: 8px !important;
+      margin-left: 8px !important;
+    }
+    .charts{
+      background: #fff;
+      border-radius: 2px 2px 0 0;
+      margin-right: 5px !important;
+      margin-left: 5px !important;
+    }
+    .map{
+      #leaflet-map{
+        height: 60vh !important;
+      }
+    }
+  }
+  .chart-tabs{
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .tabs{
+    z-index: 1000;
+    padding: 0 !important;
+    margin: 0;
+    list-style: none;
+    background: transparent;
+    border: none;
+    li{
+      display: inline-block;
+      margin: 0 3px 0 0;
+      padding: 0;
+      border: none;
+      a{
+        background: $grey-bg;
+        border: none;
+        display: inline-block;
+        padding: 7px 10px;
+        color: $text;
+        font-weight: 500;
+        border-radius:2px 2px 0 0;
+        font-size: 12px;
+        outline: none;
+      }
+      &.ui-state-active{
+        border: none;
+        a{
+          background: #fff;
+        }
+      }
+    }
+  }
+  .charts{
+    z-index: 999;
+    padding: 10px;
+    box-shadow: 0 3px 7px rgba(0,0,0,0.2);
+  }
+  .map{
+    .view-filters{
+      display: none;
+    }
+  }
+  
+  .leaflet-popup-content{
+    font-family: 'Montserrat', sans-serif;
+    max-width: 200px;
+    h2{
+      display: none;
+    }
+    .field--name-field-image{
+      float: none;
+      padding: 0 0 5px 0;
+      position: relative;
+      img{
+        border-radius: 50%;
+        margin: 0 auto;
+      }
+    }
+    .field--name-label{
+      font-weight: 500;
+      font-size: 14px;
+      text-align: center;
+      a{
+        color: $brand-primary;
+      }
+    }
+    .field--name-field-headquarters-location{
+      clear: both;
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 5px;
+    }
+    .field--name-field-industry-segment{
+      padding-top: 5px;
+      border-top: 1px solid $line;
+      text-align: center;
+    }
+  }
+}
+
+
+body.path-frontpage{
+
+  #maps-charts-row {
+    @media screen and (min-width:768px){
+      .map{
+        #leaflet-map{
+          height: calc(60vh) !important;
+          min-height: 500px !important;
+        }
+      }
+    }
+  }
+}
+// One of these, depending on design:
+.front .views-exposed-form,
+#maps-charts-row .views-exposed-form {
+  display: none;
+}

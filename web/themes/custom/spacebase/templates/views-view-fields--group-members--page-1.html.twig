@@ -1,0 +1,22 @@
+<div class="profile-thumb">
+  <a href="{{ fields.view_user.content|striptags|trim }}">{{ fields.user_picture.content }}</a>
+</div>
+<h3>
+  {% if membership.owner %}
+    <i class="fas fa-shield-alt owner" title="Organization Owner"></i>
+  {% elseif membership.admin %}
+    <i class="fas fa-shield-alt admin" title="Organization Admin"></i>
+  {% endif %}
+  <a href="{{ fields.view_user.content|striptags|trim }}">{{ fields.field_first_name_user.content }} {{ fields.field_last_name_user.content }}</a></h3>
+<div class="position hidden">
+  {{ fields.field_position.content }}
+</div>
+<div class="organization-role">
+  {{ fields.field_organization_role.content }}
+</div>
+<div class="joined">
+  Joined {{ fields.created.content }}
+</div>
+<div class="admin-links">
+  {{ fields.edit_group_content.content }} {{ fields.delete_group_content.content }}
+</div>

@@ -1,0 +1,53 @@
+.region-content {
+  .views-element-container.form-group {
+      .view.view-project-aims-current-status.view-id-project_aims_current_status {
+        padding: 35px;
+        background: #fff;
+        margin-bottom: 35px;
+        border-radius: 2px;
+        -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+  }
+  .project-group {
+    aside {
+      float: right;
+    }
+    .field--label {
+      display: none;
+    }
+    .project-mission, .description {
+      margin-bottom: 50px;
+    }
+    .project-aims, .project-reports, project-needs {
+      margin-bottom: 50px;
+    }
+    .box {
+      h4 {
+        font-size: 16px;
+        margin: 1.0em 0 0.5em;
+      }
+      .field.field--name-node-title.field--type-ds.field--label-hidden.field--item{
+        h2 {
+          margin-top: 30px;
+        }
+      }      
+    }
+  } 
+}
+
+@media screen and (max-width: 767px){
+  .region-content{
+      .project-group {
+          aside {
+            float: none !important;
+          }
+      }
+  }
+}
+.view-project-aims-current-status {
+  .views-row {
+    margin-top: 30px;
+  }
+}
+

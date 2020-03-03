@@ -1,0 +1,34 @@
+{% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
+
+{% include '@spacebase/includes/header.html.twig' %}
+
+{# Main #}
+{% block main %}
+  <div role="main" class="main-container container-fluid js-quickedit-main-content">
+    
+    <div class="row">
+
+      {# Content #}
+      {%
+        set content_classes = [
+          
+        ]
+      %}
+
+      <section {{ content_attributes.addClass(content_classes) }}>
+
+        {# Content #}
+        {% block content %}
+          <a id="main-content"></a>
+          {{ page.content }}
+        {% endblock %}
+        
+      </section>
+
+    </div>
+  </div>
+{% endblock %}
+
+{% include '@spacebase/includes/footer.html.twig' %}
+
+<div class="body-overlay"></div>

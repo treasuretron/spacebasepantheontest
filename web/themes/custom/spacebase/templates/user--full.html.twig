@@ -1,0 +1,53 @@
+{% if content %}
+
+  <div class="row profile">
+    <aside class="col-sm-4">
+      <div class="box">
+
+        <div class="profile-photo">
+        {{ content.user_picture }}
+        </div>
+
+
+        <h1>{{ content.field_first_name_user.0 }} {{ content.field_last_name_user.0 }}</h1>
+        <h2 class="position">{{ content.field_position[0] }}</h2>
+        <div class="location">{{ content.field_home_location_user.0.locality['#value'] }}, {{ content.field_home_location_user.0.administrative_area['#value'] }}, {{ content.field_home_location_user.0.country['#value'] }}</div>
+        <div class="website">
+          <a href="{{ content.field_website[0]['#url'] }}" target="_blank"><span class="icon"><i class="fas fa-globe"></i></span> <span class="text">Website </span></a>
+        </div>
+        <div>
+          <a href="{{ content.field_linkedin_user[0]['#url'] }}" target="_blank" class="btn btn-secondary btn-linkedin"><span class="icon"><i class="fab fa-linkedin"></i></span> <span class="text">LinkedIn <i class="fas fa-external-link-alt"></i></span></a>
+        </div>
+
+        <div class="private-message-link">
+          {{ content.private_message_link }}
+        </div>
+
+      </div>
+    </aside>
+    <article{{ attributes.addClass('col-sm-8') }}>
+      <div class="user-quote">
+        <span class="quote-icon">
+          <i class="fas fa-quote-left"></i>
+        </span>
+        <span class="text">{{ content.field_tagline_user[0] }}</span>
+      </div>
+      <div class="box">
+        {% if user.id == currentuserid %}
+          <a href="/user/{{ user.id }}/edit" class="btn btn-secondary btn-small pull-right" id="behat-edit-profile"><span class="icon"><i class="fas fa-edit"></i></span> Edit Profile</a>
+        {% endif %}
+
+        <h2>Bio</h2>
+        <div class="bio">
+        {{ content.field_bio_user[0] }}
+        </div>
+
+        <h2>My Organizations</h2>
+        {{ drupal_view('user_groups', 'block_1') }}
+
+      </div>
+    </article>
+  </div>
+
+
+{% endif %}

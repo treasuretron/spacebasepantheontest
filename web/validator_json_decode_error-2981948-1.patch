@@ -1,0 +1,15 @@
+diff --git a/src/NocaptchaValidator.php b/src/NocaptchaValidator.php
+index bcfc7a6..3a5b7f4 100644
+--- a/src/NocaptchaValidator.php
++++ b/src/NocaptchaValidator.php
+@@ -60,8 +60,9 @@ class NocaptchaValidator implements NocaptchaValidatorInterface {
+     }
+ 
+     if (($response->getStatusCode() == 200) && ($response->getReasonPhrase() == "OK")) {
++      $response->getBody()->rewind();
+       $body = json_decode($response->getBody()->getContents());
+-      if ($body['success'] == TRUE) return TRUE;
++      if (is_object($body) && $body->success == TRUE) return TRUE;
+     }
+ 
+     return FALSE;

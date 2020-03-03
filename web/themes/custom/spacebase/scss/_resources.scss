@@ -1,0 +1,28 @@
+.resources-overview{
+  list-style: none;
+  padding: 10px 0px 15px;
+  border-bottom: 1px solid $line;
+  margin: 0 0 15px;
+  li{
+    margin: 0 0 25px;
+    h4{
+      font-size: 16px;
+      margin: 0 0 5px;
+      a{
+        font-weight: bold;
+      }
+    }
+    p{
+      font-size: 13px;
+      margin: 0;
+    }
+  }
+}
+
+
+
+@media screen and (max-width: 479px) {
+  .resources ul.content-tabs li a{
+    font-size: 13px;
+  }
+}

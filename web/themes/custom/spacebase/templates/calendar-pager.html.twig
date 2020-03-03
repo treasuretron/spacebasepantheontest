@@ -1,0 +1,44 @@
+{% if (items.previous or items.next) and not exclude %}
+    <nav class="pager" role="navigation" aria-labelledby="pagination-heading">
+        <ul class="items">
+            {% if items.today %}
+                <li class="">
+                    <a href="{{ items.today.url }}" title="{{ 'Go to today'|t }}" rel="today"{{ items.today.attributes|without('href', 'title', 'rel') }}>
+                        <span>Today</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if items.previous %}
+                <li class="">
+                    <a href="{{ items.previous.url }}" title="{{ 'Go to previous page'|t }}" rel="prev"{{ items.previous.attributes|without('href', 'title', 'rel') }}>
+                        <span>❮</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if items.next %}
+                <li class="">
+                    <a href="{{ items.next.url }}" title="{{ 'Go to next page'|t }}" rel="next"{{ items.next.attributes|without('href', 'title', 'rel') }}>
+                        <span>❯</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if items.current %}
+                <li class="">{{ items.current }}</li>
+            {% endif %}
+            {% if items.modes %}
+            <li class="dropdown pull-right">
+                <button class="btn btn-blank btn-small dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {{ items.modes.label }}
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                    {% for link in items.modes.links %}
+                        <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}
+

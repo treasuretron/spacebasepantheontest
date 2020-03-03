@@ -1,0 +1,20 @@
+{%
+  set classes = [
+    'clearfix',
+  ]
+%}
+<h1 class="map-title">New Zealand Space Directory</h1>
+<div id="maps-charts-row" class="clearfix" >
+  <div class="map">
+   {{ drupal_view('organizations_nz_overview_map', 'views_block_filter_block_plugin_display_block_1') }}
+  </div>
+  <div class="chart-tabs">
+    <ul class="tabs">
+      <li><a href="#tab-orgs">Organisations</a></li>
+    </ul>
+    <div class="charts" id="tab-orgs">
+    {{ drupal_view('organizations_by_field_and_city', 'views_block_filter_bpdb_1') }}
+    <p><a href="{{ current_uri }}" class="reset btn btn-block btn-small btn-black">Reset map</a></p>
+    </div>
+  </div>
+</div>

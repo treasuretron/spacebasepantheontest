@@ -1,0 +1,145 @@
+.box{
+  padding: 35px;
+  background: #fff;
+  margin-bottom: 35px;
+  border-radius: 2px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  &.well{
+    padding: 35px 15px;
+  }
+  h2{
+    margin: 0 0 30px;
+  }
+  h3{
+    font-size: 20px;
+    a{
+      color: $text;
+      &:active,&:focus,&:hover{
+        color: $text;
+        text-decoration: underline;
+      }
+    }
+    .count{
+      background: $brand-primary;
+      color: #fff;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 2px 8px;
+      height: 20px;
+      line-height: 16px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-left: 10px;
+      text-align: center;
+      min-width: 40px;
+      vertical-align: top;
+    }
+  }
+  &.login{
+    max-width: 400px;
+    margin: 35px auto 35px;
+    box-shadow: 0 5px 40px rgba(0,0,0,0.8);
+    border: 10px solid $brand-primary;
+    border-radius: 4px;
+  }
+  &.register{
+    max-width: 600px;
+    margin: 35px auto 35px;
+    box-shadow: 0 5px 40px rgba(0,0,0,0.8);
+    border: 10px solid $brand-primary;
+    border-radius: 4px;
+  }
+  .more-link{
+    .btn{
+      font-size: 14px;
+      font-weight: 500;
+      color: $text;
+    }
+  }
+}
+
+body[class*="events-year"],
+body[class*="events-month"],
+body[class*="events-week"],
+body[class*="events-day"],
+body.user-login,
+body.user-register,
+body.user-password,
+body.user-edit,
+body[class*="user-reset"]{
+  background: #000 url(../images/earth-from-space-1.jpg) center top no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.flex-boxes{
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: 30px;
+  grid-auto-rows: minmax(100px, auto);
+  margin-bottom: 40px;
+  .box{
+    margin-bottom: 0;
+  }
+  @media screen and (max-width: 767px) {
+    display: block;
+    .box{
+      margin-bottom: 20px;
+    }
+  }
+}
+
+.region-sidebar-first,
+.region-sidebar-second{
+  h2.block-title{
+    margin: 0 0 10px;
+    font-size: 18px;
+  }
+}
+
+.join-login{
+  text-align: center;
+  padding: 8px 15px;
+  background: lighten($grey-accent,10%);
+  border-radius: 10px;
+  .cta-join{
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 1.1em;
+    margin-bottom: 5px;
+  }
+  @media screen and (min-width: 768px) {
+    float: right;
+    margin: -25px -25px 0 20px;
+  }
+  @media screen and (max-width: 767px) {
+    margin: 0 0 20px;
+  }
+}
+
+.pullout{
+  margin: 0 -50px;
+  @media screen and (max-width: 767px) {
+    margin: 0 -35px;
+  }
+}
+
+
+.media_embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  padding-top: 20px;
+  height: auto;
+  overflow: hidden;
+  margin: 50px 0 50px 0;
+  clear: both;
+  width: auto;
+}
+
+.media_embed iframe, .media_embed object, .media_embed embed, .media_embed blockquote {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

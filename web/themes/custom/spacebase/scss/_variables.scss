@@ -1,0 +1,28 @@
+$brand-primary:   #325ce6;
+$brand-secondary: #3bba50;
+$gold:            #fec61c;
+$gold:            #fec61c;
+$red:             #ea0c36;
+$grey-bg:         #e2e1e1;
+$grey:            #333439;
+$grey-dark:       #2b2c30;
+$grey-accent:     #aeb5bd;
+$text:            #3f4147;
+$text-light:      #76777f;
+$line:            #f0f0f0;
+$link-blue:       #4e62a0;
+
+$link-color:      $link-blue;
+
+@mixin vertical-align($position: relative) {
+  position: $position;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+// New breakpoint variables for gulp compiling
+$breakpoint-mobile: 0 680px;
+$breakpoint-tablet: 680px;
+$breakpoint-desktop: 1080px;

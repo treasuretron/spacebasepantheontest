@@ -1,0 +1,5 @@
+name: 'Spacebase Facebook'
+type: module
+description: 'Facebook integration with Spacebase.'
+core: 8.x
+package: 'Spacebase'

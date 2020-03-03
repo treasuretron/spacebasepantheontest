@@ -1,0 +1,5 @@
+name: 'Email Group Administrators'
+type: module
+description: 'Administrative activities for group owners, starting with a daily email if they have a pending members.'
+core: 8.x
+package: 'Group'

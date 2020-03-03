@@ -1,0 +1,49 @@
+
+
+<footer class="footer-top" role="contentinfo">
+  <div class="{{ container }}">
+    <div class="row">
+      <div class="col-sm-3">
+        {% if page.footer_top_1 %}
+          {% block footer_top_1 %}
+              {{ page.footer_top_1 }}
+          {% endblock %}
+        {% endif %}
+      </div>
+      
+      <div class="col-sm-3">
+        {% if page.footer_top_2 %}
+          {% block footer_top_2 %}
+              {{ page.footer_top_2 }}
+          {% endblock %}
+        {% endif %}
+      </div>
+      
+      <div class="col-sm-3">
+        {% if page.footer_top_3 %}
+          {% block footer_top_3 %}
+              {{ page.footer_top_3 }}
+          {% endblock %}
+        {% endif %}
+      </div>
+      
+      <div class="col-sm-3">
+        {% if page.footer_top_4 %}
+          {% block footer_top_4 %}
+              {{ page.footer_top_4 }}
+          {% endblock %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</footer>
+
+{% if page.footer %}
+  {% block footer %}
+    <footer class="footer" role="contentinfo">
+      <div class="{{ container }}">
+      {{ page.footer }}
+      </div>
+    </footer>
+  {% endblock %}
+{% endif %}

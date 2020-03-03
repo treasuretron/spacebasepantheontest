@@ -1,0 +1,38 @@
+{{ form.form_build_id }}
+{{ form.form_token }}
+{{ form.form_id }}
+
+<div class="member-grid pending">
+    <h2><i class="far fa-clock"></i> Pending Members <span class="count">{{ form['#members_count'] }}</span></h2>
+    <div class="pending-members">
+        {% for id, item in form.members if id matches '/^\\d+$/' %}
+            <div class="result">
+                <div class="profile-thumb">
+                    <a href="{{ item['#member'].url }}">{{ item['#member'].picture }}</a>
+                </div>
+                <h3><a href="{{ item['#member'].url }}">{{ item['#member'].name }}</a> </h3>
+
+                <div class="joined">
+                    Join requested {{ item['#member'].created }}
+                </div>
+
+                <div class="reject-accept">
+                    <i class="fas fa-times-circle reject" data-eid={{ id }} data-value="rejected"><span>reject</span></i>
+                    <i class="fas fa-check-circle accept" data-eid={{ id }} data-value="approved"><span>approve</span></i>
+                    <i class="fas fa-shield-alt make-admin hidden" data-eid={{ id }} data-value="admin"><span>admin?</span></i>
+                    <div class="hidden">
+                        {{ item.state }}
+                        {{ item.admin }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div style="clear: both;">
+    {% if form.submit %}
+        {{ form.submit }}
+    {% else %}
+        This group does not have any pending memberships.
+    {% endif %}
+</div>

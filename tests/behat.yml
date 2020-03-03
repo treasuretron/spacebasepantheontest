@@ -1,0 +1,65 @@
+default:
+  suites:
+    default:
+      paths:
+        - %paths.base%/features
+        - %paths.base%/site-features
+      contexts:
+        - FeatureContext
+        - Drupal\DrupalExtension\Context\DrupalContext
+        - Drupal\DrupalExtension\Context\MinkContext
+        - Drupal\DrupalExtension\Context\MessageContext
+        - Drupal\DrupalExtension\Context\DrushContext
+        - IntegratedExperts\BehatScreenshotExtension\Context\ScreenshotContext
+  extensions:
+    Behat\MinkExtension:
+      sessions:
+        default:
+          goutte: ~
+        javascript:
+          selenium2:
+            wd_host: http://chromedriver:4444/wd/hub
+    Drupal\DrupalExtension:
+      blackbox: ~
+      region_map: 
+        tabs: '.tabs'
+      api_driver: 'drupal'
+      drush:
+        root: '/app/web'
+      drupal:
+        drupal_root: '/app/web'
+      selectors:
+        message_selector: '.messages'
+        error_message_selector: '.messages.messages-error'
+        success_message_selector: '.messages.messages-status'
+    IntegratedExperts\BehatScreenshotExtension:
+      dir: %paths.base%/screenshots
+      fail: true
+      purge: true
+    IntegratedExperts\BehatFormatProgressFail\FormatExtension: ~
+pr-254:
+  extensions:
+    Behat\MinkExtension:
+      base_url: "https://pr-254-o4syfci-ensz4qdpjmziw.us.platform.sh"
+    Drupal\DrupalExtension:
+      api_driver: 'drush'
+      drush:
+        alias: 'pr-254'
+pr-286:
+  extensions:
+    Behat\MinkExtension:
+       base_url: "https://pr-286-wr3x6aq-ensz4qdpjmziw.us.platform.sh"
+    Drupal\DrupalExtension:
+      api_driver: 'drush'
+      drush:
+        alias: 'pr-286'
+        binary: '/app/vendor/drush/drush/drush'
+dev:
+  extensions:
+    Behat\MinkExtension:
+      base_url: "https://dev-54ta5gq-ensz4qdpjmziw.us.platform.sh/"
+    Drupal\DrupalExtension:
+      api_driver: 'drush'
+      drush:
+        alias: 'dev'
+        binary: '/app/vendor/drush/drush/drush'

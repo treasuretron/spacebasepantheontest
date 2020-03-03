@@ -1,0 +1,90 @@
+{% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
+
+{% include '@spacebase/includes/header.html.twig' %}
+
+{# Top Bar #}
+{% if page.topbar %}
+{% block topbar %}
+<div class="top-bar">
+  <div class="inner {{ container }}">
+    {{ page.topbar }}
+  </div>
+</div>
+{% endblock %}
+{% endif %}
+
+{# Main #}
+{% block main %}
+  <div role="main" class="main-container {{ container }} js-quickedit-main-content">
+    
+    {# Header #}
+    {% if page.header %}
+    <div class="row">
+      {% block header %}
+        <div class="col-sm-12" role="heading">
+          {{ page.header }}
+        </div>
+      {% endblock %}
+    </div>
+    {% endif %}
+    <div class="row">
+
+      {# Sidebar First #}
+      {% if page.sidebar_first %}
+        {% block sidebar_first %}
+          <aside class="col-sm-3" role="complementary">
+            <button class="btn btn-white btn-block filter-button">
+              <i class="fas fa-filter"></i> Filter results
+            </button>
+            {{ page.sidebar_first }}
+          </aside>
+        {% endblock %}
+      {% endif %}
+
+      {# Content #}
+      {%
+        set content_classes = [
+          page.sidebar_first and page.sidebar_second ? 'col-sm-6',
+          page.sidebar_first and page.sidebar_second is empty ? 'col-sm-9',
+          page.sidebar_second and page.sidebar_first is empty ? 'col-sm-9',
+          page.sidebar_first is empty and page.sidebar_second is empty ? 'col-sm-12'
+        ]
+      %}
+      <section{{ content_attributes.addClass(content_classes) }}>
+
+        {# Highlighted #}
+        {% if page.highlighted %}
+          {% block highlighted %}
+            <div class="highlighted">{{ page.highlighted }}</div>
+          {% endblock %}
+        {% endif %}
+
+        {# Help #}
+        {% if page.help %}
+          {% block help %}
+            {{ page.help }}
+          {% endblock %}
+        {% endif %}
+
+        {# Content #}
+        {% block content %}
+          <a id="main-content"></a>
+          {{ page.content }}
+        {% endblock %}
+      </section>
+
+      {# Sidebar Second #}
+      {% if page.sidebar_second %}
+        {% block sidebar_second %}
+          <aside class="col-sm-3" role="complementary">
+            {{ page.sidebar_second }}
+          </aside>
+        {% endblock %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}
+
+{% include '@spacebase/includes/footer.html.twig' %}
+
+<div class="body-overlay"></div>

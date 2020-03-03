@@ -1,0 +1,124 @@
+{# New variables 
+ *
+ *  Three variables set in preprocess to provide links.
+ *  {{ dd(group_links) }}
+ *  These are all urls: If the url is there, show the button with that url.
+ #}
+
+<div class="container project-group">
+  <div class="row profile">
+    <aside class="col-sm-4 pull-right">
+      <div class="box">
+        {{ drupal_view('project_group_profile', 'block_summary') }}
+      </div>
+
+    </aside>
+
+    <article{{ attributes.addClass('col-sm-8') }}>
+      <div class="box">
+        {% if group_links.group_edit %}
+          <a href="{{group_links.group_edit}}" class="btn btn-secondary btn-small pull-right"><span class="icon"><i name="forum-edit-link" class="fas fa-edit"></i></span> Edit Project</a>
+        {% endif %}
+        <h3>Mission</h3>
+        <div class="project-mission">
+          {{ content.field_project_mission }}
+        </div>
+        <h3>Description</h3>
+        <div class="description">
+          {{ content.field_description }}
+        </div>
+      </div>
+
+
+    </article>
+  </div>
+
+
+ <div class="row">
+   <div class="col col-sm-12" id="flexboxes">
+     <div class="box">	
+     {{ drupal_view('related_projects', 'block_1') }}
+     </div>
+   </div>
+ </dive
+
+ <div class="row">
+    <div class="col col-sm-12 flex-boxes" id="flexboxes">
+
+      <div class="box">
+        <h3><a href="{{group_url}}/success-metrics">Success metrics</a></h3>
+        <div class="project-aims">
+          {{ content.field_project_group_aims }}
+        </div>
+      </div>
+
+      <div class="box">
+        <h3><a href="{{group_url}}/reports">Reports</a></h3>
+        <div class="project-reports">
+          {{ content.field_project_group_updates }}
+        </div>
+      </div>
+
+      <div class="box">
+        <h3>Needs</h3>
+        <div class="project-needs">
+          {{ drupal_view('project_group_profile', 'block_needs') }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12 flex-boxes" id="flexboxes">
+
+      <div class="box">
+        {{ drupal_view('project_group_forum', 'block_fields') }}
+      </div>
+
+      <div class="box">
+        <h3><a href="{{group_url}}/resources">Resources</a> <span class="count">{{resource_total}}</span></h3>
+        <ul class="resources-overview">
+          {% for key, value in resource_type %}
+            {% set nameId =  value.name|replace(' ','_') %}
+            <li>
+              <h4><a href="{{group_url}}/resources#{{ nameId }}">{{ value.name }}</a>
+              </h4>
+              {{value.description}}
+            </li>
+          {% endfor %}
+        </ul>
+        <div class="more-link">
+          <a href="{{group_url}}/resources" class="btn btn-block">View All {{resource_total}} Resources</a>
+        </div>
+      </div>
+
+      <div class="box">
+        {% if logged_in %}
+          {{ drupal_view('project_group_members', 'block_members') }}
+        {% else %}
+          <h3>Members</h3>
+          <p><a href="/user/login">Sign in</a> to view the team list</p>
+        {% endif %}
+      </div>
+
+      {# ----- hide these boxes until they're in use ----- #}
+      <div class="hidden">
+        <div class="box">
+          <h3>Blogs</h3>
+        </div>
+        <div class="box">
+          <h3>Events</h3>
+        </div>
+        <div class="box">
+          <h3>Projects</h3>
+        </div>
+      </div>
+      {# ----- end hidden ----- #}
+
+    </div>
+  </div>
+
+</div>
+
+

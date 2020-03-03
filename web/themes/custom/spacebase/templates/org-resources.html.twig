@@ -1,0 +1,39 @@
+        {% if group_links.group_create_resources %}
+          <a href="{{group_links.group_create_resources}}" class="btn
+btn-primary btn-small pull-right"><span class="icon"><i class="fas
+fa-plus"></i></span> Add Resource</a>
+        {% endif %}
+
+        <h2>External Resources</h2>
+
+    {# see:
+http://www.tutorialspark.com/twitterBootstrap/TwitterBootstrap_Tabs.php
+       modified to deal with spaces in the id's #}
+
+    <div class="resources" role="tabpanel" data-example-id="togglable-tabs">
+      <ul id="resourceTab" class="nav nav-tabs nav-tabs-responsive content-tabs" role="tablist">
+
+        {% for key, value in resource_type %}
+        {% set valueId =  value|replace(' ','_') %}
+        <li role="presentation"{% if key == 0 %} class="active"{%
+endif %}{% if key == 1 %} class="next"{% endif %}>
+          <a href="#{{ valueId }}" id="{{ valueId }}-tab" role="tab" data-toggle="tab" aria-controls="{{ valueId }}" aria-expanded="true">
+            <span class="text">{{ value }}</span>
+          </a>
+        </li>
+
+        {% endfor %}
+      </ul>
+      <div id="myTabContent" class="tab-content">
+        {% for key, value in resource_type %}
+        {% set valueId =  value|replace(' ','_') %}
+        <div role="tabpanel" class="tab-pane fade{% if key == 0 %} in active{% endif %}" id="{{ valueId }}" aria-labelledby="{{ valueId }}-tab">
+
+          {{ drupal_view('organization_resources', 'block_1', value, group_id) }}
+
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+

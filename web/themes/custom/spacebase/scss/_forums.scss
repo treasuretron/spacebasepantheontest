@@ -1,0 +1,343 @@
+.forum-top{
+  padding: 25px 0 10px;
+  border-bottom: 1px solid $line;
+  margin-bottom: 10px;
+}
+.forum-list-view{
+  .view-content{
+    margin-bottom: 10px;
+  }
+  .views-row{
+    padding: 15px 20px 15px 0;
+    border-bottom: 1px solid $line;
+    position: relative;
+    .admin-links{
+      text-align: right;
+      z-index: 2;
+      margin-bottom: 5px;
+      margin-top: -10px;
+      margin-right: -10px;
+      i.fa-trash-alt{
+        &:hover{
+          color: $red;
+        }
+      }
+      i.fa-edit{
+        &:hover{
+          color: $brand-secondary;
+        }
+      }
+      i.fa-thumbtack{
+        &.pinned{
+          color: $gold;
+        }
+      }
+      >a{
+        display: inline-block;
+        text-align: center;
+        color: $text;
+        margin-left: 5px;
+        span{
+          display: none;
+        }
+      }
+      > span{
+        margin-left: 0;
+        display: inline-block;
+        text-align: center;
+        color: $text;
+        div,form{
+          display: inline-block;
+        }
+      }
+      .checkbox{
+        margin: 0;
+        input[type="checkbox"]{
+          position: static;
+          margin-right: -10px;
+          visibility: hidden;
+        }
+      }
+      .toggle{
+        &.off{
+          background: $grey-bg;
+        }
+        &.btn-xs{
+          padding: 0;
+          line-height: 1;
+          min-height: auto;
+          min-width: auto;
+        }
+        .toggle-handle.btn{
+          padding: 0;
+          line-height: 1;
+          vertical-align: top;
+          width: 50%;
+        }
+        .toggle-on,.toggle-off{
+          display: none;
+        }
+      }
+    }
+    .info{
+      float: left;
+      margin: 0 15px 0 0;
+      width: 44px;
+      .thumb{
+        margin-bottom: 10px;
+        img{
+          border-radius: 2px;
+        }
+      }
+      .comment-count{
+        font-size: 16px;
+        font-weight: bold;
+        color: $link-color;
+      }
+    }
+    .contents{
+      margin-left: 69px;
+      h3{
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0 0 0.1em 0;
+        i.fa-thumbtack{
+          color: $gold;
+          margin-right: 5px;
+        }
+      }
+      .text{
+        font-size: 14px;
+        margin: 0 0 5px;
+      }
+      .posted{
+        font-size: 13px;
+        color: $text-light;
+        a{
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+
+.post-comment-count{
+  font-weight: bold;
+  padding: 20px 0 10px;
+  border-bottom: 1px solid $line;
+  color: $link-color;
+  font-size: 16px;
+  clear: both;
+}
+
+article.forum-comment{
+  padding: 15px 0;
+  mark{
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    display: inline-block;
+    text-indent: -9999px;
+    overflow: hidden;
+    background: $brand-secondary;
+    margin-left: 10px;
+  }
+  .submitted{
+    color: $text-light;
+    line-height: 25px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 0 15px;
+    a{
+      font-weight: bold;
+    }
+    .field--name-user-picture{
+      margin: 0 10px 0 0;
+      float: left;
+      margin-right: 10px;
+      img{
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+      }
+    }
+  }
+  .field--name-comment-body{
+    margin: 0 0 15px 35px;
+    font-size: 16px;
+    font-weight: 500;
+  }
+  ul.links{
+    font-size: 10px;
+    font-weight: 500;
+    margin: 0 0 0 35px;
+    border-radius: 0;
+    background: none;
+    padding: 0;
+    li{
+      padding: 0;
+      margin-right: 10px;
+    }
+  }
+}
+
+.indented{
+  margin-left: 25px;
+  > article.forum-comment{
+    padding-left: 20px;
+    border-left: 2px solid $line;
+  }
+  .indented .indented .indented .indented{
+    margin: 4px 0;
+  }
+}
+
+.page-node-type-group-forum-topic{
+  .group-forum-topic{
+    position: relative;
+  }
+  .field--name-field-image{
+    float: left;
+    margin: 0 25px 20px 0;
+  }
+  h1{
+    margin: 0 0 0.5em;
+  }
+  .admin-links{
+    position: absolute;
+    right: -15px;
+    top: -25px;
+    a{
+      margin-left: 15px;
+      color: $text;
+    }
+    i.fa-thumbtack{
+      color: $text;
+      &.pinned{
+        color: $gold;
+      }
+    }
+    i.fa-trash-alt{
+      &:hover{
+        color: $red;
+      }
+    }
+    i.fa-edit{
+      &:hover{
+        color: $brand-secondary;
+      }
+    }
+    i.fa-thumbtack{
+      &.pinned{
+        color: $gold;
+      }
+    }
+  }
+  .field--name-field-pin-to-top{
+    display: none;
+    input[type="checkbox"]{
+      position: static;
+      margin: 0;
+    }
+  }
+  .submitted{
+    color: $text-light;
+    line-height: 25px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 0 0 15px;
+    a{
+      font-weight: bold;
+    }
+    .field--name-user-picture{
+      margin: 0 10px 0 0;
+      float: left;
+      margin-right: 10px;
+      img{
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+      }
+    }
+  }
+  .field--name-body{
+    p{
+      font-size: 18px;
+      font-weight: 500;
+    }
+  }
+  #cboxTitle{
+    right: 0;
+    top: 0;
+    text-align: center;
+    padding: 2px 10px;
+    background: rgba(0,0,0,0.7);
+  }
+
+  .comment-form{
+    display: none;
+  }
+}
+
+.add-comment{
+  padding: 30px 0;
+  border-bottom: 1px solid $line;
+  position: relative;
+  .form-actions{
+    clear: both;
+  }
+}
+
+.close-comment{
+  display: none;
+  position: absolute;
+  right: -10px;
+  top: 15px;
+  font-size: 34px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.comment-form{
+  .control-label{
+    display: none;
+  }
+}
+
+.field--name-comment-body{
+  &:after{
+    clear: both;
+    content: '';
+    display: block;
+    height: 0;
+    visibility: hidden;
+  }
+}
+
+.node-group-forum-topic-form{
+  position: relative;
+  padding-top: 20px;
+  .field--name-field-pin-to-top{
+    position: absolute;
+    top: -20px;
+    right: 0;
+    margin: 0;
+    .checkbox{
+      margin: 0;
+    }
+    label{
+      font-size: 12px;
+      padding: 0 20px 0 0;
+      input[type="checkbox"]{
+        right: 0;
+        left: auto;
+      }
+    }
+  }
+  .form-item-title-0-value, .field--name-body{
+    label{
+      display: none;
+    }
+  }
+}

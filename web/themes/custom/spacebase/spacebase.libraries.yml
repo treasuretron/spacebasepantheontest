@@ -1,0 +1,66 @@
+global-styling:
+  css:
+    theme:
+      css/style.css: {}
+
+bootstrap-scripts:
+  js:
+    bootstrap/assets/javascripts/bootstrap/affix.js: {}
+    bootstrap/assets/javascripts/bootstrap/alert.js: {}
+    bootstrap/assets/javascripts/bootstrap/button.js: {}
+    bootstrap/assets/javascripts/bootstrap/carousel.js: {}
+    bootstrap/assets/javascripts/bootstrap/collapse.js: {}
+    bootstrap/assets/javascripts/bootstrap/dropdown.js: {}
+    bootstrap/assets/javascripts/bootstrap/modal.js: {}
+    bootstrap/assets/javascripts/bootstrap/tooltip.js: {}
+    bootstrap/assets/javascripts/bootstrap/popover.js: {}
+    bootstrap/assets/javascripts/bootstrap/scrollspy.js: {}
+    bootstrap/assets/javascripts/bootstrap/tab.js: {}
+    bootstrap/assets/javascripts/bootstrap/transition.js: {}
+
+parallax:
+  version: 1.x
+  js:
+    js/parallax.js: {}
+  dependencies:
+    - core/jquery
+
+flexslider:
+  version: 2.x
+  js:
+    js/jquery.flexslider-min.js: {}
+  css:
+    theme:
+      css/flexslider.css: {}
+  dependencies:
+    - core/jquery
+    
+global-scripts:
+  js:
+    js/custom.js: {}
+  dependencies:
+    - core/jquery.ui.tabs
+   
+    
+fonts:
+  css:
+    theme:
+      'https://fonts.googleapis.com/css?family=Montserrat:100,200,300,500,700': { type: external, minified: true }
+
+chart-map-alter:
+  version: 1.x
+  js:
+    js/chart-map-alter.js: {}
+  dependencies:
+  - core/jquery
+    spacebase/leaflet-gesture-handling
+
+leaflet-gesture-handling:
+  js:
+    js/leaflet-gesture-handling.js: {}
+  dependencies:
+  - leaflet/leaflet
+  - leaflet/leaflet-drupal
+  css:
+    component:
+      css/leaflet-gesture-handling.min.css: {}

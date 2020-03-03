@@ -1,0 +1,14 @@
+{
+  "name": "drupal/spacebase_users",
+  "type": "drupal-module",
+  "description": "User functionality for Spacebase.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/spacebase_users",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/spacebase_users",
+    "source": "http://cgit.drupalcode.org/spacebase_users"
+  },
+  "require": { }
+}

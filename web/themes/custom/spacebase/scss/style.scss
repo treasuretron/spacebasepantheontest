@@ -1,0 +1,50 @@
+// Default variables.
+@import "default-variables";
+
+// Theme variables
+@import 'variables';
+
+// Bootstrap Framework.
+@import '../bootstrap/assets/stylesheets/bootstrap';
+
+// Base-theme overrides.
+@import 'overrides';
+
+// import breakpoint!
+// <<<<<<< HEAD
+// @import "breakpoint";
+
+// =======
+//@import "breakpoint";
+// >>>>>>> dev
+
+// Image fix
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+// Custom CSS
+@import 'mixins';
+@import 'content';
+@import 'nav';
+@import 'footer';
+@import 'home';
+@import 'profile';
+@import 'search';
+@import 'forms';
+@import 'tabs';
+@import 'events';
+@import 'forums';
+@import 'map';
+@import 'resources';
+@import 'members';
+@import 'pages';
+@import 'blog';
+@import 'slide';
+@import 'video';
+@import 'news';
+@import 'blocks';
+@import 'projects';
+@import 'private-message';
+

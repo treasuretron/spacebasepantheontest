@@ -1,0 +1,103 @@
+{# New variables (Mike: erase this note if you want...)
+ *
+ *  Three variables set in preprocess to provide links.
+ *  {{ dd(group_links) }}
+ *  These are all urls: If the url is there, show the button with that url.
+ #}
+
+<div class="container organization-group">
+    
+    
+  
+  <div class="row profile">
+    
+    <aside class="col-sm-4 pull-right">
+      <div class="box">
+        {{ drupal_view('group_profile', 'block_1') }}
+      </div>
+    </aside>
+    
+    <article{{ attributes.addClass('col-sm-8') }}>
+      <div class="box">
+        {% if group_links.group_edit %}
+          <a href="{{group_links.group_edit}}" class="btn btn-secondary btn-small pull-right"><span class="icon"><i name="forum-edit-link" class="fas fa-edit"></i></span> Edit Organization</a>
+        {% endif %}
+        <h2>Description </h2>
+        <div class="description">
+        {{ content.field_description }}
+        </div>
+          
+          
+      </div>
+    </article>
+        
+  </div>
+  <div class="row">
+    <div class="col col-sm-12 flex-boxes" id="flexboxes">
+
+
+
+      <div class="box">
+        {{ drupal_view('group_forum', 'block_3') }}
+      </div>
+
+
+
+      <div class="box">
+          
+        <h3><a href="{{group_url}}/resources">External Resources</a> <span class="count">{{resource_total}}</span></h3>
+        
+        <ul class="resources-overview">
+
+            {% for key, value in resource_type %}
+            {% set nameId =  value.name|replace(' ','_') %}
+            <li>
+              <h4><a href="{{group_url}}/resources#{{ nameId }}">{{ value.name }}</a>
+              </h4>
+              {{value.description}}
+            </li>
+            {% endfor %}
+
+        </ul>
+        
+        <div class="more-link">
+          <a href="{{group_url}}/resources" class="btn btn-block">View All {{resource_total}} Resources</a>
+        </div>
+
+
+    </div>
+    
+    
+    
+    <div class="box">
+      {% if logged_in %}
+      {{ drupal_view('group_members', 'block_1') }}
+      {% else %}
+      <h3>Members</h3>
+      <p><a href="/user/login">Sign in</a> to view the members list</p>
+      {% endif %}
+    </div>
+    
+    
+    
+    {# ----- hide these boxes until they're in use ----- #}
+    <div class="hidden">
+      
+    <div class="box">
+      <h3>Blogs</h3>
+    </div>
+    <div class="box">
+      <h3>Events</h3>
+    </div>
+    <div class="box">
+      <h3>Projects</h3>
+    </div>
+    
+    </div>
+    {# ----- end hidden ----- #}
+    
+    
+    </div>
+  </div>
+
+</div>

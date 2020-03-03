@@ -1,0 +1,23 @@
+
+{%
+  set classes = [
+    'block',
+    'side-by-side',
+    'block-' ~ configuration.provider|clean_class,
+    'block-' ~ plugin_id|clean_class,
+    'clearfix',
+  ]
+%}
+<section{{ attributes.addClass(classes) }}>
+  <div class="container">
+    <div class="row clearfix">
+      <div class="col-sm-6">
+        {{ content.field_text_left }}
+      </div>
+      <div class="col-sm-6">
+        {{ content.field_text_right }}
+      </div>
+    </div>
+  </div>
+</section>
+

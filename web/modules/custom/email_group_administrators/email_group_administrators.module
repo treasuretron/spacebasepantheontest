@@ -1,0 +1,191 @@
+<?php
+
+/**
+ * @file
+ * Contains email_group_administrators.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Component\Render\PlainTextOutput;
+
+
+/**
+ * Implements hook_help().
+ */
+function email_group_administrators_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the email_group_administrators module.
+    case 'help.page.email_group_administrators':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Administrative activities for group owners. So far: a daily email if they have a pending members.') . '</p>';
+      return $output;
+  }
+}
+
+
+
+/**
+ * Implements hook_cron().
+ *
+ * Send emails a maximum of once every 24 hours (easily changed below)
+ * Current variant loosely aims for midnight 
+ * by running only during am hours, 
+ * and no more than once every 13 hours. 
+ * Not clear what the ideal use case is, 4:50 pm might make more sense?
+ */
+function email_group_administrators_cron() {
+  //## Access config to send only occassionally
+  $cron_config = \Drupal::configFactory()->getEditable('email_group_administrators.settings');
+  // Default to an hourly min time between emails. 
+  $interval = $cron_config->get('interval');
+  $interval = !empty($interval) ? $interval : 3600 * 13; // < 24
+      /*  3600; is hourly */
+  $next_execution = \Drupal::state()->get('email_group_administrators.next_execution');
+  $next_execution = !empty($next_execution) ? $next_execution : 0;
+
+  \Drupal::logger('email_group_administrators')->notice('Request time is ' . REQUEST_TIME . ' and next execution can happen at ' . $next_execution . ',  after an interval of ' . $interval . ' seconds.');
+  
+  $hour = date('H'); // hour, 24 hour format
+
+  // If at least $interval seconds have gone by, and it's before noon:
+  if ( REQUEST_TIME >= $next_execution && $hour < 12 ) {
+    \Drupal::state()->set('email_group_administrators.next_execution', REQUEST_TIME + $interval);
+
+    // Send emails and set the min time before we might send more.
+    _email_who_what();
+  }
+}
+
+function _email_who_what() {
+  // Get all the groups. 
+  $storage = \Drupal::entityTypeManager()->getStorage('group');
+  $messages = array(); // messages per admin, by uid
+  foreach ($storage->loadMultiple() as $group) {
+    
+    $adminIds = [];  
+    $pendingIds = [];
+    $done = array();
+
+    foreach ($group->getMembers() as $membership ) {
+      // For every member of this group,
+      // collect $adminIds
+      // And how many members lack another role
+      //  (blocked and verified are both not-pending)
+      $uid = $membership->getUser()->id();
+      foreach ($membership->getRoles() as $rid => $role) {
+        if ($rid == 'organization_group-admin' || $rid == 'organization_group-owner' ) {
+          // Users can be Admin and Owner both, just one email:
+          if (!$done[$uid]) {
+            $adminIds[] = $uid;
+          }
+          $done[$uid] = true;
+        }
+        elseif ($rid == 'organization_group-member') {
+          // This may collect false-positives, removed below
+          $pendingIds[] = $uid;
+        }
+        elseif ($rid == 'organization_group-verified' || $rid == 'organization_group-blocked') { 
+          // make this verified, and what else?
+          $done[$uid] = true;
+        }  
+      }
+    }        
+    
+    // For this group, are there pending members?
+    $pending = 0; 
+    foreach ($pendingIds as $uid) {
+      if(!isset($done[$uid])) {
+        $pending++;
+        \Drupal::logger('email_group_administrators')->notice("UID of pending user: " . $uid);
+      }
+    }
+  
+    // If there are pending members, 
+    // add them to the $messages going to each admin
+    // Note: cron depends on configuration to know the real websites
+    // url. Also, the emails right now are plain-text. So Drupal's rules
+    // for regular links just get in the way. Should look at a newsletter
+    // module to see how they fix this when we have time!
+    if ($pending > 0 ) {
+      \Drupal::logger('email_group_administrators')->notice("Sending emails for pending users");
+      foreach ($adminIds as $admin) {
+        /* works on local and all dev env's, produduces http://default
+         * on live! Try $base_url from config instead...
+         $msg = "<br/>" . $pending . " pending members at " . \Drupal::request()->getSchemeAndHttpHost() . "/group/" . $group->id() . "/applicants\n";
+         */
+        global $base_url;
+        \Drupal::logger('email_group_administrators')->notice("Base URL for this server is: " . $base_url);
+        // TEST Bandaid: temp fix for config issues, when run by non-web cron
+        // Not sure if needed, hard to test devel server.
+        if (strpos($base_url, "default")!== false) {
+          $base_url = "https://spacebase.co"; // Note: removed last '/' ...
+        }
+        $label = Drupal\Component\Utility\Html::escape($group->label()); 
+        $msg = "<br/>" . $pending . " pending members for " . $label . " at " . $base_url . "/group/" . $group->id() . "/members#pending\n";
+        $messages[$admin] .= $msg;
+      }
+    }      
+  } // \All the groups
+
+  /** Send each admin all their $msg's. **/
+  $module = 'email_group_administrators'; 
+  $key = 'email_group_administrators';
+ 
+  foreach ($messages as $admin => $msg) {
+    $account =  \Drupal\user\Entity\User::load($admin);
+    $email = $account->getEmail();
+    //TEST: divert emails to programmer can go here
+    $langcode = $account->getPreferredLangcode();
+    $params = array();
+    $params['account'] = $account;
+    $params['applicants'] = $msg;
+
+    /** Pre-config approach, erase in a bit if config works:
+    $params['name'] = $account->field_first_name_user->value; //   $account->getUsername(); // Or, First, Last?
+    $params['message'] = $account->getUsername() . ', '
+      . t("<p>You have pending members to moderate at SpaceBase:</p>\n\n")
+      . t("<p>If you <em>accept members</em> they will be allowd to participate. If necessary, you can also reject an applicant.</p>")
+                         . $msg;
+     $params['subject'] = "Pending members at SpaceBase";
+    */
+
+    $result = \Drupal::service('plugin.manager.mail')->mail($module, 'email_admin_pending', $email, $langcode, $params);
+  }
+}
+
+/**
+ * Implements hook_mail().
+ *
+ * Uses token module for user name, and replaces the list of applicants, while getting the
+ * email from config so that the mail_edit module works: admin/config/system/mail-edit
+ */
+function email_group_administrators_mail($key, &$message, $params) {
+  $token_service = \Drupal::token();
+  $langcode = $message['langcode'];
+  $token_variables = ['user' => $params['account']];
+  $mail_config = \Drupal::config('email_group_administrators_mail.emails'); // note: called .mail in user module, .emails in docs
+  // Note: might get rid of tokens, and do our own lighter-weight name replacement system similar to [LIST]
+  $token_options = ['langcode' => $langcode,'clear' => TRUE];
+  $text = $token_service->replace($mail_config->get($key . '.body'), $token_variables, $token_options);
+  $message['body'][] = str_replace('[LIST]', $params['applicants'], $text);
+  $message['subject'] .= PlainTextOutput::renderFromHtml($token_service->replace($mail_config->get($key . '.subject'), $token_variables, $token_options));
+  //$message['subject'] = PlainTextOutput::renderFromHtml($mail_config->get($key . '.subject'));
+}
+
+
+
+/**
+ * Implements hook_mail_edit_keys().
+ * Make it available to mail_edit to edit the template
+ */
+/**
+ * Implements hook_mail_edit_templates().
+ */
+function email_group_administrators_mail_edit_templates() {
+  return [
+    'email_group_administrators.emails' => [
+      'email_admin_pending' => t('Orgs admins notice when applicants pending'),
+    ],
+  ];
+}

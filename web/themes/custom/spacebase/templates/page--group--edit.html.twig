@@ -1,0 +1,50 @@
+{% set container = theme.settings.fluid_container ? 'container-fluid' : 'container' %}
+
+{% include '@spacebase/includes/header.html.twig' %}
+
+{# Main #}
+{% block main %}
+  <div role="main" class="main-container {{ container }} js-quickedit-main-content">
+    
+    {# Header #}
+    {% if page.header %}
+    <div class="row">
+      {% block header %}
+        <div class="col-sm-12" role="heading">
+          {{ page.header }}
+        </div>
+      {% endblock %}
+    </div>
+    {% endif %}
+    <div class="row">
+      
+      <section{{ content_attributes.addCLass('box') }}>
+
+        {# Highlighted #}
+        {% if page.highlighted %}
+          {% block highlighted %}
+            <div class="highlighted">{{ page.highlighted }}</div>
+          {% endblock %}
+        {% endif %}
+
+        {# Help #}
+        {% if page.help %}
+          {% block help %}
+            {{ page.help }}
+          {% endblock %}
+        {% endif %}
+
+        {# Content #}
+        {% block content %}
+          <a id="main-content"></a>
+          {{ page.content }}
+        {% endblock %}
+      </section>
+    </div>
+  </div>
+{% endblock %}
+
+{% include '@spacebase/includes/footer.html.twig' %}
+
+
+<div class="body-overlay"></div>

@@ -1,0 +1,7 @@
+name: Migrate Process Extra Plus
+type: module
+description: Provides more Migrate process plugins that are not part of the core or Migrate Plus or Migrate Plus Extra process plugins.
+core: 8.x
+package: Migration
+dependencies:
+  - migrate_tools

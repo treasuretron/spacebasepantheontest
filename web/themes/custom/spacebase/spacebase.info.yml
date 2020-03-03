@@ -1,0 +1,36 @@
+core: 8.x
+type: theme
+base theme: bootstrap
+
+name: 'SpaceBase'
+description: 'Subtheme of Bootstrap'
+package: 'Bootstrap'
+
+regions:
+  navigation: 'Navigation'
+  navdropdown: 'Nav Dropdown'
+  navigation_collapsible: 'Navigation (Collapsible)'
+  header: 'Header'
+  branding: 'Branding'
+  topbar: 'Top Bar'
+  highlighted: 'Highlighted'
+  help: 'Help'
+  content: 'Content'
+  sidebar_first: 'Primary'
+  sidebar_second: 'Secondary'
+  footer_top_1: 'Footer Column 1'
+  footer_top_2: 'Footer Column 2'
+  footer_top_3: 'Footer Column 3'
+  footer_top_4: 'Footer Column 4'
+  footer: 'Footer'
+  page_top: 'Page top'
+  page_bottom: 'Page bottom'
+  groupmgt: 'Group Mgt'
+
+libraries:
+  - 'spacebase/global-styling'
+  - 'spacebase/bootstrap-scripts'
+  - 'spacebase/parallax'
+  - 'spacebase/flexslider'
+  - 'spacebase/global-scripts'
+  - 'spacebase/fonts'

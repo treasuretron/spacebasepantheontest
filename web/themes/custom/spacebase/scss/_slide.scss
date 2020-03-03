@@ -1,0 +1,151 @@
+
+.home-slides{
+  overflow: hidden;
+  background: #000;
+  z-index: 10;
+  .view-content{
+    position: relative;
+  }
+  .flex-control-nav{
+    bottom: 20px;
+    z-index: 19;
+    a{
+      background: rgba(255,255,255,0.3);
+      &.flex-active{
+        background: rgba(255,255,255,0.9);
+      }
+    }
+  }
+  .flex-direction-nav{
+    li{
+      a{
+        z-index: 20;
+        position: absolute;
+        top: 49%;
+        opacity: 0.6;
+        color: rgba(0,0,0,0);
+        height: 60px;
+        text-shadow: none;
+        &:hover{
+          opacity: 0.9;
+        }
+        &:before{
+          color: #fff;
+          display: block;
+          text-rendering: auto;
+          text-align: center;
+          position: absolute;
+        }
+      }
+      .flex-prev{
+        left: 20px;
+        &:before{
+          content: "\f053";
+          font-family: 'Font Awesome\ 5 Free';
+          -moz-osx-font-smoothing: grayscale;
+          -webkit-font-smoothing: antialiased;
+          display: inline-block;
+          font-weight: 900;
+          font-style: normal;
+          font-variant: normal;
+        }
+      }
+      .flex-next{
+        right: 20px;
+        &:before{
+          content: "\f054";
+          font-family: 'Font Awesome\ 5 Free';
+          -moz-osx-font-smoothing: grayscale;
+          -webkit-font-smoothing: antialiased;
+          display: inline-block;
+          font-weight: 900;
+          font-style: normal;
+          font-variant: normal;
+        }
+      }
+    }
+  }
+  .single-slide{
+    height: 75vh !important;
+    position: relative;
+    z-index: 11;
+    max-height: 900px;
+    .slide-background{
+      position: absolute;
+
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 12;
+      // Adding gradient with css because it's so easy!
+      &:after {
+          content: '';
+          width:100%;
+          height: 50%;
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.3) 30%, rgba(0,0,0,0.5) 100%);
+      }
+      picture,
+      img {
+          object-fit: cover;
+          object-position: center center;
+          max-width: unset;
+          width: 100%;
+          height: 100%;
+      }
+    }
+    .slide-content{
+      position: absolute;
+      display: block;
+      bottom: 100px;
+      left: 120px;
+      z-index: 13;
+      @media screen and (max-width: 991px){
+        width: 52%;
+        bottom: 90px;
+        left: 60px;
+      }
+      @media screen and (max-width: 991px){
+        width: 85%;
+        bottom: 75px;
+        left: 40px;
+        padding-right: 40px;
+      }
+      @media screen and (min-width: 991px) {
+        max-width: calc(100% - 300px);
+      }
+      .text{
+        color: #fff !important;
+        font-size: 20px;
+        margin-bottom: 30px;
+        text-shadow: #252525 1px 1px 12px;
+        h2{
+          font-size: 36px;
+          font-weight: 800;
+          margin: 0 0 10px;
+        }
+        h3 {
+          font-size: 30px;
+          font-weight: 800;
+          margin: 0 0 10px;
+        }
+        a {
+            color: #56abc2;
+            font-weight: 700;
+        }
+      }
+    }
+  }
+}
+
+// Internet Explorer specific theming
+.ie-maddness {
+    .home-slides .single-slide .slide-background picture,
+    .home-slides .single-slide .slide-background img {
+        width: 100%;
+        height: auto;
+    }
+}

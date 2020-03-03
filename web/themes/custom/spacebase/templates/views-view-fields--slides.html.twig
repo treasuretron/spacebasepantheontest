@@ -1,0 +1,8 @@
+<div class="slide-background">
+    {{ fields.field_sl_image.content }}
+</div>
+
+<div class="slide-content">
+  <div class="text">{{ fields.field_sl_text.content }}</div>
+  <a href="{{ fields.field_sl_button_url.content|render|striptags|trim }}" class="btn btn-white-transparent">{{ fields.field_sl_button_text.content }}</a>
+</div>

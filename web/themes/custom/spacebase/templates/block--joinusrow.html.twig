@@ -1,0 +1,13 @@
+{%
+  set classes = [
+    'call-to-action-row',
+    'clearfix',
+  ]
+%}
+<section{{ attributes.addClass(classes) }}>
+  <div class="container">
+  {% block content %}
+    {{ content }}
+  {% endblock %}
+  </div>
+</section>

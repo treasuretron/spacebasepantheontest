@@ -1,0 +1,64 @@
+#block-sociallogins {
+    text-align: center;
+    margin-top: 20px;
+    .button.google {
+        background-image: url('../images/google.svg');
+        background-position: 92% center;
+        background-size: 25px;
+        background-repeat: no-repeat;
+        padding-right: 55px;
+    }
+}
+
+.user-register #block-sociallogins {
+    margin: 0 0 60px 0;
+}
+
+.region-navigation {
+    .views-exposed-form {
+        display: none;
+        @media screen and (min-width:768px) {
+            display: block;
+        }
+        float: left;
+        margin-top: 10px;
+        input[type="text"]{
+            margin: 5px 0;
+            border-radius: 2px 0 0 2px;
+        }
+        button[type="submit"] {
+            margin-left: 0px;
+            text-indent: -9999px;
+            position: relative;
+            padding: 10px 22px;
+            border: 1px solid #3bba50;
+            font-size: 16px;
+            border-radius: 0px 2px 2px 0px;
+            &:after {
+                font-family: 'Font Awesome\ 5 Free';
+                content: '\f002';
+                -moz-osx-font-smoothing: grayscale;
+                -webkit-font-smoothing: antialiased;
+                display: inline-block;
+                font-weight: 900;
+                font-style: normal;
+                font-variant: normal;
+                text-rendering: auto;
+                line-height: 1;
+                font-size: 24px;
+                line-height: 42px;
+                height: 42px;
+                width: 30px;
+                color: #fff;
+                text-align: center;
+                text-indent: 0;
+                position: absolute;
+                top: 0;
+                left: 8px;
+            }
+        }
+    }
+    fieldset.form-item {
+        display: none;
+    }
+}

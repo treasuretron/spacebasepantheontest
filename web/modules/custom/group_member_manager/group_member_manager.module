@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Contains group_member_manager.module.
+ *
+ * This module has been simplified from earlier efforts, letting a hacked
+ * version of VBO do the work for now ... that should be changed given time.
+ *
+ * It currently contains an action that expects per-group-content config
+ * (whichi is unusual for VBO)
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function group_member_manager_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the group_member_manager module.
+    case 'help.page.group_member_manager':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Allows group Admins to reject or confirm applicantsr: this creates the action only.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+
+
+function group_member_action_info() {
+  // @ToDO: read https://www.drupal.org/node/2052067 esp for access
+  return array(
+    'group_member_applicant_action' => array(
+      'type' => 'entity',  // @ToDo: narrow
+      'label' => t('Confirm or Reject the Applicant'),
+      'behavior' => array('changes_property'), 
+      'configurable' => FALSE,
+      'vbo_configurable' => FALSE, 
+      'triggers' => array('any'),   // @ToDo what is this one
+    ),
+  );
+}
+
+/**
+ * Implements hook_mail().
+ *
+ * No surpises here.
+ */
+function group_member_manager_mail($key, &$message, $params) {
+
+     $message['from'] = \Drupal::config('system.site')->get('mail');
+     $message['subject'] = $params['subject'];
+     $message['body'][] = $params['message'];
+
+}

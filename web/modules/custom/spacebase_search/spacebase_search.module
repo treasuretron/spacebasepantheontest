@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * @file
+ * Contains spacebase_search.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_alter()
+ */
+function spacebase_search_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form['#id'] == 'views-exposed-form-sitewide-search-search') {
+    $path = \Drupal::service('path.current')->getPath();
+    switch ($path) {
+      case '/search/organizations':
+        $form['#action'] = $path;
+        $form['keywords']['#attributes']['placeholder'] = 'Search organizations';
+        $form['sf'] = [
+          '#type' => 'checkboxes',
+          '#options' => [
+            'group_description' => 'Search Descriptions'
+          ],
+        ];
+        $form['#attached']['library'][] = 'spacebase_search/search';
+        break;
+      case '/search/people':
+        $form['#action'] = $path;
+        $form['keywords']['#attributes']['placeholder'] = 'Search people';
+        break;
+      default:
+        $form['#action'] = '/search';
+        $form['keywords']['#attributes']['placeholder'] = 'Search site';
+        break;
+    }
+  }
+}
+
+/**
+ * Implements hook_views_pre_view()
+ */
+function spacebase_search_views_pre_view(Drupal\views\ViewExecutable $view) {
+  if ($view->id() == 'sitewide_search') {
+    // We will always search group name. Can't use default_value with disabled checkbox
+    // @TODO https://www.drupal.org/project/drupal/issues/2911473
+    $_GET['sf']['group_name'] = 'group_name';
+    if (!empty($_GET['sf'])) {
+      $filters = $view->display_handler->getOption('filters');
+      if ($filters['search_api_fulltext']) {
+        unset($filters['search_api_fulltext']['fields']);
+        foreach ($_GET['sf'] as $key) {
+          $filters['search_api_fulltext']['fields'][$key] = $key;
+        }
+        $view->display_handler->overrideOption('filters', $filters);
+      }
+    }
+  }
+}

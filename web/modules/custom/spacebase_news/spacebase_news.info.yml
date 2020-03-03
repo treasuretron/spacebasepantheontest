@@ -1,0 +1,5 @@
+name: 'Spacebase News'
+type: module
+description: 'News functionality for Spacebase.'
+core: 8.x
+package: 'Spacebase'

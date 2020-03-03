@@ -1,0 +1,69 @@
+
+{# Navbar #}
+{% if page.navigation or page.navigation_collapsible %}
+  {% block navbar %}
+    {%
+      set navbar_classes = [
+        'navbar',
+        theme.settings.navbar_inverse ? 'navbar-inverse' : 'navbar-default',
+        theme.settings.navbar_position ? 'navbar-' ~ theme.settings.navbar_position|clean_class : container,
+      ]
+    %}
+    <header{{ navbar_attributes.addClass(navbar_classes) }} id="navbar" role="banner">
+      
+        <div>
+      {% if page.branding %}
+        {{ page.branding }}
+      {% endif %}
+      
+      <div class="navbar-header">
+        {# .btn-navbar is used as the toggle for collapsed navbar content #}
+        {% if page.navigation_collapsible %}
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+            <span class="sr-only">{{ 'Toggle navigation'|t }}</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        {% endif %}
+        
+        <div class="main-nav">
+          <button type="button" class="icon-blocks pull-right">
+            <span class="sr-only">{{ 'Toggle dropdown'|t }}</span>
+            <span class="icon-block-row">
+              <span class="icon-block"></span>
+              <span class="icon-block"></span>
+              <span class="icon-block"></span>
+            </span>
+            <span class="icon-block-row">
+              <span class="icon-block"></span>
+              <span class="icon-block"></span>
+              <span class="icon-block"></span>
+            </span>
+            <span class="icon-block-row">
+              <span class="icon-block"></span>
+              <span class="icon-block"></span>
+              <span class="icon-block"></span>
+            </span>
+          </button>
+          {% if page.navdropdown %}
+            {{ page.navdropdown }}
+          {% endif %}
+        </div>
+        {% if page.navigation %}
+          {{ page.navigation }}
+        {% endif %}
+      <i class="search-icon pull-right fas fa-search"></i>
+      
+      </div>
+
+      {# Navigation (collapsible) #}
+      {% if page.navigation_collapsible %}
+        <div id="navbar-collapse" class="navbar-collapse collapse">
+          {{ page.navigation_collapsible }}
+        </div>
+      {% endif %}
+        </div>
+    </header>
+  {% endblock %}
+{% endif %}

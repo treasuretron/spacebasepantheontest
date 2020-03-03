@@ -1,0 +1,10 @@
+<div class="profile-thumb">
+  <a href="/u/{{ fields.name.content|render|striptags|trim }}">{{ fields.user_picture.content }}</a>
+</div>
+<h3><a href="/u/{{ fields.name.content|render|striptags|trim }}">{{ fields.field_first_name_user.content }} {{ fields.field_last_name_user.content }}</a></h3>
+
+<a href="{{ fields.edit_group_content_1.content|render|striptags|trim }}" class="btn btn-primary btn-xsmall"><i class="fas fa-edit"></i> Moderate</a>
+
+<div class="joined">
+  Join requested {{ fields.created.content }}
+</div>

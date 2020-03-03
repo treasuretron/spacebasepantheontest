@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains spacebase_facebook.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function spacebase_facebook_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the spacebase_facebook module.
+    case 'help.page.spacebase_facebook':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Facebook integration with Spacebaase') . '</p>';
+      return $output;
+
+    default:
+  }
+}

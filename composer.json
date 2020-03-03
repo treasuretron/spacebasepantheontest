@@ -1,0 +1,255 @@
+{
+    "name": "spacebase/spacedirectory",
+    "description": "Merge of SpaceBase code intended to run on Pantheon, using install drops-8 with Composer on Pantheon. From package pantheon-systems/example-drops-8-composer",
+    "type": "package",
+    "license": "GPL-2.0+",
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://packages.drupal.org/8"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "c3js/c3",
+                "version": "v0.4.18",
+                "type": "drupal-library",
+                "extra": {
+                    "installer-name": "c3"
+                },
+                "dist": {
+                    "url": "https://github.com/c3js/c3/archive/v0.4.18.zip",
+                    "type": "zip"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "d3/d3",
+                "version": "v3.5.17",
+                "type": "drupal-library",
+                "extra": {
+                    "installer-name": "d3"
+                },
+                "dist": {
+                    "url": "https://github.com/d3/d3/archive/v3.5.17.zip",
+                    "type": "zip"
+                },
+                "require": {
+                    "composer/installers": "~1.0"
+                }
+            }
+        }
+    ],
+    "require": {
+        "drupal/search_api": "^1.13",
+        "c3js/c3": "0.4.18",
+        "composer/installers": "^1.5",
+        "cweagans/composer-patches": "^1.0",
+        "d3/d3": "3.5.17",
+        "drupal-composer/drupal-scaffold": "^2.0.1",
+        "drupal/address": "^1.4",
+        "drupal/admin_toolbar": "^2",
+        "drupal/adminimal_theme": "^1.3",
+        "drupal/auto_entitylabel": "^2.1@beta",
+        "drupal/better_exposed_filters": "^3.0@alpha",
+        "drupal/block_type_templates": "^1.0",
+        "drupal/bootstrap": "^3.7",
+        "drupal/bootstrap_toggle": "^1.0",
+        "drupal/calendar": "1.x-dev",
+        "drupal/captcha_questions": "^1.1",
+        "drupal/cer": "^4.0",
+        "drupal/charts": "^3.0@alpha",
+        "drupal/coder": "^8.2",
+        "drupal/coffee": "^1.0@beta",
+        "drupal/colorbox": "^1.4",
+        "drupal/config_direct_save": "^1.0",
+        "drupal/config_installer": "^1.0",
+        "drupal/console": "^1",
+        "drupal/core": "^8.6.15",
+        "drupal/core_views_facets": "^1.0",
+        "drupal/csv_serialization": "^1.3",
+        "drupal/devel": "^1.2",
+        "drupal/ds": "^3.3",
+        "drupal/empty_page": "^2.0",
+        "drupal/facets": "^1.0@beta",
+        "drupal/focal_point": "^1.0@beta",
+        "drupal/fontawesome": "^2.0",
+        "drupal/fontyourface": "dev-3.x#4e7ac385ec74ca1506df727039607a369c02e9cc",
+        "drupal/geocoder": "^2.0@beta",
+        "drupal/geofield": "^1.0@beta",
+        "drupal/google_analytics": "^2.2",
+        "drupal/group": "1.x-dev",
+        "drupal/honeypot": "^1.29",
+        "drupal/image_widget_crop": "^2.1",
+        "drupal/inline_entity_form": "^1.0@RC",
+        "drupal/leaflet": "^1.4",
+        "drupal/leaflet_more_maps": "^1.0@alpha",
+        "drupal/mail_edit": "1.x-dev",
+        "drupal/mailgun": "^1.0@beta",
+        "drupal/mailsystem": "^4.1",
+        "drupal/markup": "^1.0",
+        "drupal/menu_link_attributes": "^1.0",
+        "drupal/metatag": "^1.5",
+        "drupal/migrate_plus": "^4.2",
+        "drupal/migrate_process_extra": "1.x-dev",
+        "drupal/migrate_source_csv": "^2.0",
+        "drupal/migrate_tools": "^4.5",
+        "drupal/nocaptcha_recaptcha": "1.x-dev",
+        "drupal/paragraphs": "^1.5",
+        "drupal/password_policy": "3.x-dev",
+        "drupal/pathauto": "^1.0",
+        "drupal/permissions_by_term": "^2.6",
+        "drupal/private_message": "2.x-dev#104ecb59eb8650c22555b1c9ce9010276f5a7b9f",
+        "drupal/publishcontent": "1.1",
+        "drupal/riddler": "^1.1",
+        "drupal/schema_metatag": "^1.3",
+        "drupal/simple_block": "^1.0@beta",
+        "drupal/simple_menu_icons": "^2.1",
+        "drupal/smart_trim": "^1.1",
+        "drupal/social_api": "^2.0",
+        "drupal/social_auth": "^2.0",
+        "drupal/social_auth_google": "^2.0",
+        "drupal/stage_file_proxy": "^1.0@alpha",
+        "drupal/taxonomy_import": "^1.0",
+        "drupal/token": "^1.1",
+        "drupal/twig_tweak": "^2.0",
+        "drupal/video_embed_field": "^2.0",
+        "drupal/video_embed_media": "^2.0",
+        "drupal/views_block_filter_block": "1.x-dev",
+        "drupal/views_bulk_operations": "^2.3",
+        "drupal/views_field_view": "^1.0@beta",
+        "drush-ops/behat-drush-endpoint": "^9.3",
+        "drush/drush": "^9.6",
+        "pantheon-systems/quicksilver-pushback": "~1",
+        "rvtraveller/qs-composer-installer": "^1.1",
+        "zaporylie/composer-drupal-optimizations": "^1.0"
+    },
+    "require-dev": {
+        "behat/behat": "3.*",
+        "behat/mink": "^1.7",
+        "behat/mink-extension": "^2.2",
+        "behat/mink-goutte-driver": "^1.2",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+        "drupal/coder": "^8.3.1",
+        "drupal/drupal-extension": "^3.1",
+        "jcalderonzumba/gastonjs": "^1.0.2",
+        "jcalderonzumba/mink-phantomjs-driver": "^0.3.1",
+        "mikey179/vfsstream": "^1.2",
+        "phpunit/phpunit": "^4.8",
+        "squizlabs/php_codesniffer": "^3.4.0",
+        "symfony/css-selector": "^2.8",
+        "overtrue/phplint": "^1.0",
+        "guzzlehttp/guzzle" : "^6.0@dev",
+        "integratedexperts/behat-screenshot" : "^0.7",
+        "integratedexperts/behat-format-progress-fail": "^0.2"
+
+    },
+    "conflict": {
+            "drupal/drupal": "*"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "keep-vcs": true,
+    "autoload": {
+        "classmap": [
+            "scripts/composer/ScriptHandler.php"
+        ]
+    },
+    "scripts": {
+        "build-assets": [
+            "@prepare-for-pantheon",
+            "composer install --optimize-autoloader --no-dev"
+        ],
+        "lint": "find web/modules/custom web/themes/custom -name '*.php' -exec php -l {} \\;",
+        "code-sniff": [
+        ],
+        "unit-test": "echo 'No unit test step defined.'",
+        "drupal-scaffold": "DrupalComposer\\DrupalScaffold\\Plugin::scaffold",
+        "prepare-for-pantheon": "DrupalProject\\composer\\ScriptHandler::prepareForPantheon",
+        "post-install-cmd": [
+            "@drupal-scaffold",
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-update-cmd": [
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ],
+        "post-create-project-cmd": [
+            "@drupal-scaffold",
+            "DrupalProject\\composer\\ScriptHandler::createRequiredFiles"
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "web/core": ["type:drupal-core"],
+            "web/modules/contrib/{$name}": ["type:drupal-module"],
+            "web/profiles/contrib/{$name}": ["type:drupal-profile"],
+            "web/themes/contrib/{$name}": ["type:drupal-theme"],
+            "drush/Commands/contrib/{$name}": ["type:drupal-drush"],
+            "web/libraries/{$name}": [
+              "type:drupal-library"
+            ]
+ 
+        },
+        "patches": {
+            "drupal/group": {
+                "Fix: Group creators get duplicate entries": "https://www.drupal.org/files/issues/duplicate-members-on-group-create-fixed-2923297-3.patch"
+            },
+            "drupal/calendar": {
+                "Year display header always shows current year after using pager": "https://www.drupal.org/files/issues/year_display_header_always_shows_current_year-2915266-02.patch",
+                "ISO-8601 Week and Year": "https://www.drupal.org/files/issues/2018-06-11/iso_8601_week_and_year-2917145-4.patch",
+                "Timezones": "https://www.drupal.org/files/issues/2018-03-20/2604546-26.patch"
+            },
+            "drupal/nocaptcha_recaptcha" : {
+                "Validator has json_decode error": "./web/validator_json_decode_error-2981948-1.patch"
+            },
+            "drupal/private_message": {
+                "8.x-2.x-104ecb5: Late listner": "https://www.drupal.org/files/issues/2019-04-08/private_message-threads_load_late_listener-3046653-2.patch",
+                "8.x-2.x-104ecb5: Load previous": "https://www.drupal.org/files/issues/2019-04-23/private_message-load_previous-3041603-13.patch",
+                "8.x-2.x-104ecb5: Blocked users": "https://www.drupal.org/files/issues/2019-04-04/private_message-threads_with_blocked_users-3044025-13-d8.patch",
+                "8.x-2.x-104ecb5: Inbox not working": "https://www.drupal.org/files/issues/2019-04-26/private_message-3038771-inbox-not-working-13.patch"
+            },
+            "drupal/leaflet_more_maps": {
+                "8.x-1.0-alpha3: Invalid agrument": "https://www.drupal.org/files/issues/lmm_2847024-9.patch"
+            },
+            "drupal/permissions_by_term": {
+                "8.x-2.10: Integrate with group": "https://www.drupal.org/files/issues/2019-04-12/3041315-group-integration-2.patch"
+            }
+        },
+        "build-env": {
+            "install-cms": [
+                "drush site-install standard --account-mail={account-mail} --account-name={account-name} --account-pass={account-pass} --site-mail={site-mail} --site-name={site-name} --yes"
+            ],
+            "export-configuration": "drush config-export --yes"
+        },
+        "drupal-scaffold": {
+            "source": "https://raw.githubusercontent.com/pantheon-systems/drops-8-scaffolding/{version}/{path}",
+            "includes": [
+                "sites/default/default.services.pantheon.preproduction.yml",
+                "sites/default/settings.pantheon.php"
+            ],
+            "excludes": [
+                ".csslintrc",
+                ".editorconfig",
+                ".eslintignore",
+                ".eslintrc.json",
+                ".htaccess",
+                "web.config"
+            ]
+        }
+    },
+    "replace": {
+        "drupal/drupal": "*"
+    },
+
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "platform": {
+            "php": "7.0.8"
+        },
+        "discard-changes": true
+    }
+}

@@ -1,0 +1,459 @@
+<?php
+/**
+ * @file
+ * Bootstrap sub-theme.
+ *
+ * Place your custom PHP code in this file.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\views\Views;
+use Drupal\views\ViewExecutable;
+use Drupal\group\Entity\GroupContent;
+use Drupal\user\Entity\User;
+use Drupal\Component\Render\PlainTextOutput;
+use Drupal\group\Entity\Group;
+
+/**
+ * Implements hook_preprocess_user().
+ */
+function spacebase_preprocess_user(&$variables) {
+  $variables['currentuserid'] = \Drupal::currentUser()->id();
+  $variables['#cache']['contexts'][] = 'user';
+}
+
+/**
+ * Implements hook_views_pre_render().
+ */
+function spacebase_views_pre_render(ViewExecutable $view) {
+
+  if (isset($view) && ($view->storage->id() == 'organizations_by_field_and_city')) {
+    // Add javascript to the chart
+    $view->element['#attached']['library'][] = 'spacebase/leaflet-gesture-handling';
+    $view->element['#attached']['library'][] = 'spacebase/chart-map-alter';
+  }
+
+  // Change descriptions for empty Organization Resources
+  // @Refactor, not sure, could this be combined with  _prep_resources
+  // in spacebase_core?
+  if ($view->id() == "organization_resources" 
+      && $view->current_display == 'block_1') {
+    $term_name = $view->argument['name']->argument;
+    $terms =
+      \Drupal::entityTypeManager()
+        ->getStorage('taxonomy_term')
+        ->loadByProperties(['name' => $term_name]);
+    $term = array_shift($terms);
+    if ($descrip = $term->getDescription()) {
+      // Remove closing </p> and possible last period (without relying on
+      // them) then add last text. 
+      $descrip = preg_replace('/\<\/p\>\s*$/', '', $descrip);  
+      $descrip = preg_replace('/\.\s*$/','', $descrip);
+      $view->empty['area_text_custom']->options['content'] = 
+        $descrip . " — nothing here, yet.</p>";
+    }
+  }
+}
+
+/**
+ * Implements hook_theme_suggestions_page_alter().
+ *
+ * The Org-Profile sub-pages (forum, members, and resources for now)
+ * use this page template. So do the group forum nodes.
+ */
+function spacebase_theme_suggestions_page_alter(array &$suggestions, array $variables) {
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $result = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
+  $path_alias = trim($result, '/');
+  $path_alias = str_replace('/', '-', $path_alias);
+  $suggestions[] = 'page__path_alias__'.$path_alias;
+
+  $matches = [];
+  if (preg_match('/group\/(\d*)\/(forum|members|resources)/',$current_path, $matches)) {
+    /** @var \Drupal\group\Entity\Group $group */
+    $group = Group::Load($matches[1]);
+    if ($group->bundle() == 'organisation_group') {
+      $suggestions[] = 'page__org_profile';
+    }
+    else {
+      $suggestions[] = 'page__project_profile';
+    }
+  }
+
+  /** @var \Drupal\node\NodeInterface $node */
+  if ($node = \Drupal::routeMatch()->getParameter('node')) {
+    $content_type = $node->bundle();
+    if ($content_type == 'group_forum_topic') {
+      //{% include "@mytheme/partials/favicons.html.twig" %}
+      /** @var \Drupal\group\Entity\Group $group */
+      $group = _group_from_node($node);
+      $group_type = $group->getEntityTypeId();
+      if ($group_type == 'organisation_group') {
+        $suggestions[] = 'page__org_profile';
+      }
+      else {
+        $suggestions[] = 'page__project_profile';
+      }
+    }
+    else {
+      $suggestions[] = 'page__'.$content_type;
+    }
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_block().
+ *
+ * Note: you'll probably want this only for certain blocks.
+ */
+function spacebase_preprocess_block(&$variables) {
+
+  $block_id = $variables['plugin_id'];
+  switch ($block_id) {
+    case 'private_message_inbox_block':
+      if (isset($variables['content']['#attributes'])) {
+        $variables['attributes'] = $variables['content']['#attributes'];
+      }
+      else {
+        $variables['attributes'] = [
+          'class' => [
+            'block',
+            'block-private-message',
+            'block-private-message-inbox-block'
+          ]
+        ];
+      }
+      break;
+  }
+
+}
+
+/**
+ * Implements hook_theme_suggestions_block_alter().
+ *
+ * The private_message inbox uses this function.
+ */
+function spacebase_theme_suggestions_block_alter(array &$suggestions, array $variables) {
+
+  $current_path = \Drupal::service('path.current')->getPath();
+
+  $matches = [];
+  if (preg_match('/private_messages(\/(\d*))?/', $current_path, $matches)) {
+    if (isset($matches[2])) {
+      $thread_id = $matches[2];
+    }
+    //$suggestions[] = 'block__private_message_inbox';
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_node().
+ *
+ * Note: you'll probably want this only for certain content types.
+ */
+function spacebase_preprocess_node(&$variables) {
+
+  // Get a count of comments for forum topics
+  if ($variables['node']->getType() == 'group_forum_topic') {
+    $variables['comment_count'] = $variables['node']->get('field_reply')->comment_count;
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_html().
+ */
+function spacebase_preprocess_html(&$variables) {
+
+  $current_path = \Drupal::service('path.current')->getPath();
+  $path_alias = \Drupal::service('path.alias_manager')->getAliasByPath($current_path);
+  $path_alias = ltrim($path_alias, '/');
+  $variables['attributes']['class'][] = \Drupal\Component\Utility\Html::cleanCssIdentifier($path_alias);
+
+}
+
+/**
+ * Implements hook_preprocess_page().
+ *
+ * Send the group id to page--org-profile templates,
+ * which are used often, including for things like confirming the delete
+ * of a forum entry.
+
+ */
+function spacebase_preprocess_page(&$variables) {
+
+  if (isset($variables['node']) && $variables['node']->get('type')->target_id == 'group_forum_topic') {
+    // $variables['node']->getType == 'group_forum_topic' ... doesn't work, just on the delete confirm page,
+    // The above clunky version works everywhere so far:
+    /** @var \Drupal\group\Entity\Group $group */
+    $group = _group_from_node($variables['node']);
+    $variables['groupid'] = $group->id();
+  }
+  elseif ($variables['is_front']) {
+    /* @ToDo: this is momentarily correct, but maybe switch to views alter? */
+    // Add javascript to the chart
+    $variables['#attached']['library'][] = 'spacebase_core/leaflet-gesture-handling';
+    $variables['#attached']['library'][] = 'spacebase_core/chart-map-alter';
+  }
+
+  if (isset($variables['node'])) {
+    $variables['title'] = $variables['node']->title->value;
+  }
+  else {
+    $variables['title'] = $variables['page']['#title'];
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_field_comment().
+ *
+ * Can the current user post comments into this group? (Initially, are they a
+ * member, but permission based so might change.)
+ * This is for the entry box, not the "reply" link #131.
+ */
+function spacebase_preprocess_field__comment(&$variables) {
+
+  $account = \Drupal::currentUser();
+  // the field is in a node that has a group.
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['element']['#object'];
+  /** @var \Drupal\group\Entity\Group $group */
+  $group = _group_from_node($node);
+  $variables['parent_groups'][$group->id()] = $group->label();
+  // Starting a thread and replying to someone elses, same permissions (now)
+  if ($group->hasPermission('create group_node:group_forum_topic entity', $account)) {
+    $variables['post_comments_this_group'] = TRUE;
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function spacebase_preprocess_private_message_notification_block(&$variables) {
+  // Update the default private message notification icon with a custom variant.
+  $variables['notification_image_path'] = base_path() . drupal_get_path('theme', 'spacebase') . '/images/private-message-notification-icon.png';
+}
+
+/**
+ * Implements hook_preprocess_node
+ *
+ * Link Forum nodes back to their Organization
+ */
+function spacebase_preprocess_node__group_forum_topic(&$variables) {
+
+  // 1. Forum threads should send people back to either the forum or
+  // org page, tbd (by theme tempate).
+  // 2. Don't show comments form to non-group members
+  // Designed loosely with possible multiple group ownership of forums in mind:
+  // 3. Admin pins; others come from views.
+
+  $account = \Drupal::currentUser();
+  $show_pin = FALSE; // #show-pin-access will probably change
+
+  /** @var \Drupal\group\Entity\Group $group */
+  $group = _group_from_node($variables['node']);
+  $variables['parent_groups'][$group->id()] = $group->label();
+  /* elsewhere, right? Test. @ToDo cut if tests ok. */
+  $show_reply = FALSE;
+
+  if ($group->hasPermission('create group_node:group_forum_topic entity', $account)) {
+    $show_reply = TRUE;
+  }
+  // Access to pins is tricky, View access means you can see the item is pinned,
+  // but don't see that in the places
+  // where editors can edit the pins.
+  if ($group->hasPermission('organization_group-admin[administer group]', $account)) {
+    $show_pin = TRUE;
+  }
+  _set_the_group_links($variables, $group);  /* only one group, refactor code */
+
+  // 3. Admin pins. Here, and via views, which handle permissions via view fields.
+  /** @var \Drupal\node\NodeInterface $node */
+  $node = $variables['node'];
+  $variables['admin_links_q']['show_pin'] = $show_pin;
+  $variables['admin_links_q']['edit'] = $node->access('update');
+  $variables['admin_links_q']['delete'] = $node->access('delete');
+
+}
+
+/**
+ * Implements hook_preprocess_group().
+ *
+ * Prepare theme variables to show links/buttons to join, leave, or create
+ * content for groups, or edit groups. A .show boolean and .url
+ * Leaves developing link text and classes to theme/twig.
+ * Based on both permissions and membership status (can't join a group
+ * you already joined) set variables and make url's available to theme.
+ */
+function spacebase_preprocess_group(&$variables) {
+
+  /** @var \Drupal\group\Entity\Group $group */
+  $group = $variables['group'];
+  _set_the_group_links($variables, $group);
+
+  // Also, prep the descriptions per term
+  // There is vaguely similar code in spacebase.theme
+  // Foreach term in the vocab
+  // if ($descrip = $term->getDescription()) {
+
+}
+
+/**
+ * Implements hook_preprocess_views_view().
+ *
+ * One of a few preprocesses that _set_the_group_links for a template
+ */
+function spacebase_preprocess_views_view(&$variables) {
+
+  $view = $variables['view'];
+
+  if ($variables['id'] == "organizations_by_field_and_city") {
+    // chart on home page needs title
+    $city = $variables['view']->exposed_data['city'];
+    $variables['title'] = $city ? t($city) : " ";
+    // depend on other design if default desired
+  }
+  elseif ($variables['id'] == "group_forum" || $variables['id'] == "project_group_forum") {
+    // page_1, block_3
+    /** @var \Drupal\group\Entity\Group $group */
+    $group = Drupal\group\Entity\Group::load($view->args[0]);
+    _set_the_group_links($variables, $group);
+  }
+
+  if ($variables['id'] == "group_members" && $variables['display_id'] == 'page_1') {
+    // Add member link on members page
+    $gid = (int) \Drupal::routeMatch()->getParameter('group');
+    /** @var \Drupal\group\Entity\Group $group */
+    $group = Drupal\group\Entity\Group::load($gid);
+    $account = \Drupal::currentUser();
+
+    if ($group->hasPermission('administer members', $account)) {
+      // Don't send classes or text to the themer; send destination.
+      $variables['member_invite_button'] = true;
+    }
+    if ($account->hasPermission('bypass group access')) {
+      $variables['member_add_button'] = '/group/' . $gid .
+        '/content/add/group_membership?destination=/group/' . $gid . '/members';
+    }
+  }
+
+  // Deal with the double HTML encoding of special chars in the view header.
+  // TODO find and fix this at source.
+  $view_id = $view->id();
+  $view_display = $view->current_display;
+  if ($view->id() == 'group_forum' && $view->current_display == 'page_1') {
+    if ($header = $variables['header']) {
+      $variables['header']['area']['#text'] = str_replace('&amp;', '&', $header['area']['#text']);
+    }
+  }
+
+}
+
+/**
+ * Implements template_preprocess_views_view_fields().
+ *
+ * One of a few preprocesses that _set_the_group_links for a template
+ */
+function spacebase_preprocess_views_view_fields(&$variables) {
+
+  if ($variables['view']->id() == 'group_profile' || $variables['view']->id() == 'project_group_profile') {
+    // Same as preprocess_views_view. Refactor? @ToDoTrivial
+    $view = $variables['view'];
+    /** @var \Drupal\group\Entity\Group $group */
+    $group = Drupal\group\Entity\Group::load($view->args[0]);
+    _set_the_group_links($variables, $group);
+  }
+
+  if ($variables['view']->id() == 'group_members' && $variables['view']->current_display == 'page_1') {
+    $variables['membership'] = [
+      'owner' => FALSE,
+      'admin' => FALSE,
+      'verified' => FALSE,
+    ];
+
+    foreach ($variables["row"]->_entity->group_roles->getValue() as $role) {
+      // @TODO don't be lazy
+      switch ($role['target_id']) {
+        case 'organization_group-admin':
+          $variables['membership']['admin'] = TRUE;
+          break;
+        case 'organization_group-verified':
+          $variables['membership']['verified'] = TRUE;
+          break;
+      }
+
+      if ($variables["row"]->groups_field_data_group_content_field_data_uid == $variables["row"]->users_field_data_group_content_field_data_uid) {
+        $variables['membership']['owner'] = TRUE;
+      }
+    }
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for views-view-field.html.twig.
+ *
+ * Make the views-created name ("first last") an aliased link.
+ */
+function spacebase_preprocess_views_view_field(&$variables) {
+
+  $view = $variables['view'];
+  if ($view->id() == 'sitewide_search') {
+    $field = $variables['field'];
+    if ($field->field == 'name') {
+      $text = $variables['output'];
+      $user = $variables['row']->_object->getValue();
+      $url = $user->toURL();
+      $variables['output'] = Link::fromTextAndUrl($text, $url);
+    }
+  }
+
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function spacebase_preprocess_calendar_pager(&$variables) {
+
+  if (!$variables['exclude']) {
+    $path = array_values(array_filter(explode('/', \Drupal::service('path.current')->getPath())));
+    foreach (spacebase_events_calendar_get_key_formats() as $key => $format) {
+      if ($path[1] == $key) {
+        $arg = isset($path[2]) ? $path[2] : NULL;
+        $variables['items']['today'] = [
+          'url' => Url::fromUserInput("/events/{$key}/" . date($format)),
+        ];
+        $variables['items']['modes'] = [
+          'label' => ucfirst($key),
+          'links' => spacebase_events_get_calendar_mode_links($arg, $format),
+        ];
+        break;
+      }
+    }
+  }
+
+}
+
+/**
+ * Creates a set of mode links for a given view
+ */
+function spacebase_events_preprocess_calendar_week_overlap(&$variables) {
+
+  $arg = $variables['view']->args[0];
+  $date = new DateTime('now', new DateTimeZone('Pacific/Auckland'));
+  $date->setISODate(substr($arg, 0, 4), substr($arg, -2), 0);
+  foreach ($variables['day_names'] as $key => $value) {
+    $variables['day_names'][$key]['data'] = "{$date->format('D')} {$date->format('j')}";
+    $date->add(new DateInterval('P1D'));
+  }
+
+}
+

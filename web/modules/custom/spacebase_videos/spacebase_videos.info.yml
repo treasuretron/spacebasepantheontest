@@ -1,0 +1,5 @@
+name: 'Spacebase Videos'
+type: module
+description: 'Video functionality for Spacebase.'
+core: 8.x
+package: 'Spacebase'

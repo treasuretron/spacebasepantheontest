@@ -1,0 +1,89 @@
+.region-navigation {
+  .block-private-message-notification-block {
+    float: right;
+    margin-top: 12px;
+    h2 {
+      display: none;
+    }
+    .private-message-page-link {
+      color: white;
+      font-weight: 700;
+    }
+  }
+}
+
+.private-message-thread {
+  .user--view-mode-private-message-author {
+    display: inline-block;
+  }
+}
+
+.block-private-message-actions-block,
+.block-private-message-inbox-block {
+  h2 {
+    margin: 20px 0 10px;
+  }
+}
+
+#private-message-page {
+  h2 {
+    margin: 0 0 10px;
+  }
+}
+
+.block-simple-blockprivate-messages-inbox-link {
+  h2 {
+    display: none;
+  }
+}
+
+.private-message-thread {
+  .group-header {
+    .private-message-recipients {
+      margin-bottom: 10px;
+    }
+  }
+  .group-left {
+    padding-right: 10px;
+    .field--label {
+      margin-bottom: 5px;
+    }
+    .private_message_thread_delete_link_wrapper,
+    .private-message-thread-delete-link-wrapper {
+      margin-top: 10px;
+    }
+  }
+  .group-right {
+    padding-left: 10px;
+    label {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  }
+}
+
+.private-message-thread-inbox {
+  #load-previous-messages-button-wrapper {
+    display: none;
+  }
+}
+
+.private-message-container {
+  .content-row {
+    position: relative;
+    .box.col-sm-6 {
+      width: 50%;
+      margin-left: 50%;
+      margin-right: 0;
+    }
+    .box.col-sm-12 {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+    .sidebar-first {
+      width: 50%;
+      margin-left: -100%;
+    }
+  }
+}

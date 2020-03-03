@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * @file
+ * Contains spacebase_blogs.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
+
+
+/**
+ * Implements hook_help().
+ */
+function spacebase_blogs_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the spacebase_blogs module.
+    case 'help.page.spacebase_blogs':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Blog functionality for Spacebase.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+
+
+/**
+ * Implements hook_node_insert().
+ *
+ * When new content is created, queue the node in order to email
+ * the appropriate Admins (Organization or Site) on next cron.
+ *
+ */
+
+function spacebase_blogs_node_insert(NodeInterface $node) {
+
+  if ($node->getType() == 'blog_post') {
+    $module = 'spacebase_blogs';
+    $key = 'new_content_blogs';
+    spacebase_core_queue_content_notifications($module, $key, $node);
+  }
+}
+
+
+
+/**
+ * Implements hook_mail_edit_keys().
+ * Make it available to mail_edit to edit the template
+ */
+function spacebase_blogs_mail_edit_templates() {
+  return [
+    'spacebase_blogs.emails' => [
+      'new_content_blogs_org' => t('Org admins notice: Blog created in Org.'),
+      'new_content_blogs' => t('Site admins notice: Blog created.'),
+    ],
+  ];
+}
+

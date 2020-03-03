@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file 
+ * Contains spacebase_events.module.
+ */
+
+
+use Drupal\Core\Url;
+use Drupal\node\NodeInterface;
+
+/**
+ * Implements hook_theme_registry_alter()
+ */
+//function spacebase_events_theme_registry_alter(&$theme_registry) {
+//  $theme_registry['calendar_pager']['path'] = drupal_get_path('module', 'spacebase_events') . '/templates';
+//}
+
+/**
+ * Creates a set of mode links for a given view
+ */
+function spacebase_events_get_calendar_mode_links($arg = NULL, $format) {
+  if (empty($arg)) {
+    $arg = date($format);
+  }
+
+  switch ($format) {
+    case 'Y':
+      if ($arg != date($format)) {
+        $arg .= '0101';
+      }
+      else {
+        $arg .= date('md');
+      }
+      $date = date_create_from_format ('Ymd', $arg);
+      break;
+    case 'Ym':
+      if ($arg != date($format)) {
+        $arg .= '01';
+      }
+      else {
+        $arg .= date('d');
+      }
+    case 'Ymd':
+      $date = date_create_from_format ('Ymd', $arg);
+      break;
+
+    case 'YW':
+      $date = new DateTime();
+      $date->setISODate(substr($arg, 0, 4), substr($arg, -2));
+      break;
+  }
+
+  $links = [];
+  foreach (spacebase_events_calendar_get_key_formats() as $key => $format) {
+    $links[] = [
+      'label' => ucfirst($key),
+      'url' => Url::fromUserInput("/events/{$key}/{$date->format($format)}"),
+    ];
+  }
+  return $links;
+}
+
+function spacebase_events_calendar_get_key_formats() {
+  return [
+    'day' => 'Ymd',
+    'week' => 'YW',
+    'month' => 'Ym',
+    'year' => 'Y',
+  ];
+}
+
+
+
+/**
+ * Implements hook_node_insert().
+ *
+ * When new content is created, queue the node in order to email
+ * the appropriate Admins (Organization or Site) on next cron.
+ *
+ */
+
+function spacebase_events_node_insert(NodeInterface $node) {
+
+  if ($node->getType() == 'event') {
+    $module = 'spacebase_events';
+    $key = 'new_content_events';
+    spacebase_core_queue_content_notifications($module, $key, $node);
+  }
+}
+
+
+
+/**
+ * Implements hook_mail_edit_keys().
+ * Make it available to mail_edit to edit the template
+ */
+function spacebase_events_mail_edit_templates() {
+  return [
+    'spacebase_events.emails' => [
+      'new_content_events_org' => t('Org admins notice: Event created in Org.'),
+      'new_content_events' => t('Site admins notice: Event created.'),
+    ],
+  ];
+}
+

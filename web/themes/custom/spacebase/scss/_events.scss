@@ -1,0 +1,366 @@
+.calendar-year-view,
+.calendar-month-view,
+.calendar-week-view,
+.calendar-day-view{
+  h3{
+    text-align: center;
+    margin: 0;
+    padding: 10px;
+    border-bottom: 2px solid $line;
+    border-top: 2px solid $line;
+  }
+}
+.view-sb-site-events-calendar{
+  .view-header{
+    .pager{
+      text-align: left;
+      margin: 5px 0;
+      position: relative;
+      @media screen and (max-width: 1023px) {
+        padding-top: 45px;
+      }
+      @media screen and (max-width: 767px) {
+        padding-top: 45px;
+      }
+      ul{
+        padding: 0;
+        margin: 0;
+        li{
+          a{
+            width: auto;
+          }
+          span{
+            width: auto;
+          }
+          h2{
+            display: inline-block;
+            position: absolute;
+            margin: 0 0 0 -250px;
+            top: -10px;
+            left: 50%;
+            width: 500px;
+            text-align: center;
+            font-size: 24px;
+            padding: 5px 0;
+            border: solid $line;
+            border-width: 2px 0;
+            @media screen and (max-width: 600px) {
+              width: auto;
+              margin-left: 0;
+              top: 0;
+            }
+          }
+        }
+      }
+      .dropdown-menu{
+        li{
+          display: block;
+          a{
+            border-radius: 0;
+            display: block;
+          }
+        }
+      }
+    }
+  }
+}
+.calendar-calendar{
+  .month-view{
+    .full{
+      td.week{
+        background: $brand-primary;
+        color: #fff;
+        vertical-align: middle;
+        a{
+          color: #fff;
+        }
+      }
+      td.date-box{
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        .inner{
+          div.day{
+            font-size: 12px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            a{
+              color: $text;
+              font-weight: bold;
+            }
+          }
+        }
+      }
+      tr td.today{
+        border-left: 3px solid $brand-primary;
+        border-right: 3px solid $brand-primary;
+      }
+      tr td.single-day.today{
+        border-bottom: 3px solid $brand-primary;
+      }
+      td.date-box.today{
+        border-top: 3px solid $brand-primary;
+        border-left: 3px solid $brand-primary;
+        border-right: 3px solid $brand-primary;
+      }
+      .single-day,
+      .multi-day{
+        td{
+          .item{
+            .calendar.weekview{
+              float: none;
+              margin: 0 3px 3px;
+              padding: 2px 4px;
+              border-radius: 3px;
+              background: $line;
+              border: 1px solid lighten($brand-primary,20%);
+              .contents{
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                a{
+                  display: block;
+                  font-size: 11px;
+                  color:  $brand-primary;
+                }
+                time{
+                  color: $text;
+                  font-weight: normal;
+                  font-size: 9px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .week-view{
+    #single-day-container{
+      border-right: 1px solid #ccc;
+    }
+    .calendar-day-holder.margin-right{
+      display: none;
+    }
+    .calendar-agenda-hour{
+      background: transparent;
+    }
+    .full{
+      div.calendar-agenda-hour{
+        display: block;
+        float: none;
+        background: $brand-primary;
+        color: #fff;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        span{
+          font-size: 9px;
+        }
+      }
+      td.calendar-day-holder{
+        width: 13.42% !important;
+      }
+      td.calendar-time-holder{
+        width: 6% !important;
+      }
+      .calendar-agenda-items{
+        .calendar.item-wrapper{
+          .inner{
+            .item{
+              .calendar.weekview{
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                float: none;
+                margin: 0 3px 3px;
+                padding: 2px 4px;
+                border-radius: 3px;
+                background: $line;
+                border-color: lighten($brand-primary,20%);
+                .contents{
+                  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                  a{
+                    display: block;
+                    font-size: 12px;
+                    color:  $brand-primary;
+                  }
+                  time{
+                    color: $text;
+                    font-weight: normal;
+                    font-size: 10px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .day-view{
+    #single-day-container{
+      border-right: 1px solid #ccc;
+    }
+    .calendar-day-holder.margin-right{
+      display: none;
+    }
+    .calendar-agenda-hour{
+      background: transparent;
+    }
+    .full{
+      div.calendar-agenda-hour{
+        display: block;
+        float: none;
+        background: $brand-primary;
+        color: #fff;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        span{
+          font-size: 9px;
+        }
+      }
+      .calendar-agenda-items{
+        .calendar.item-wrapper{
+          .inner{
+            .item{
+              .calendar.weekview{
+                font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                float: none;
+                margin: 0 3px 3px;
+                padding: 2px 4px;
+                border-radius: 3px;
+                background: $line;
+                border: 1px solid lighten($brand-primary,20%);
+                .contents{
+                  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                  a{
+                    display: block;
+                    font-size: 13px;
+                    color:  $brand-primary;
+                  }
+                  time{
+                    color: $text;
+                    font-weight: normal;
+                    font-size: 11px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  .month-view{
+    table.mini{
+      td{
+        border: 1px solid $line;
+        text-align: center;
+        &.days{
+          background: $line;
+          font-size: 11px;
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+        div.day{
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          background: none;
+          border: none;
+          float: none;
+          width: auto;
+          font-size: 13px;
+          a{
+            font-weight: bold;
+            color: $brand-primary;
+          }
+        }
+        &.today{
+          background: lighten($brand-primary,35%);
+        }
+      }
+    }
+  }
+  .year-view{
+    .month-view{
+      padding: 10px;
+    }
+  }
+}
+
+body.page-node-type-event{
+  .event{
+    .image{
+      margin: 0 0 30px;
+    }
+    .calendar-name{
+      margin: 0 0 15px;
+      font-size: 16px;
+      padding: 5px 15px 5px 10px;
+      background: $brand-primary;
+      color: #fff;
+      float: left;
+      display: inline-block;
+      text-decoration: none;
+      i{
+        margin-right: 5px;
+      }
+    }
+    h1{
+      @media screen and (min-width: 768px) {
+        float: left;
+        width: 60%;
+        clear: left;
+      }
+    }
+    .content{
+      position: relative;
+      .description{
+        font-size: 1.2em;
+        margin: 0 0 40px;
+        clear: left;
+        @media screen and (min-width: 768px) {
+          width: 70%;
+        }
+      }
+      h2{
+        font-size: 20px;
+        margin: 0 0 10px;
+      }
+      .links{
+        font-weight: bold;
+        .field--item{
+          font-weight: bold;
+          margin: 0 0 4px;
+          a{
+            color: $brand-primary;
+          }
+        }
+      }
+      .event-sidebar{
+        margin: 0 0 30px;
+        @media screen and (min-width: 768px) {
+          float: right;
+          width: 25%;
+          margin: 0 0 30px 40px;
+        }
+        h3{
+          margin: 0 0 10px;
+        }
+      }
+      .registration{
+        margin-bottom: 30px;
+        a{
+          display: block;
+          padding: 15px;
+          text-align: center;
+          background: $brand-secondary;
+          color: #fff;
+          font-weight: bold;
+          &:active, &:focus,&:hover{
+            background: lighten($brand-secondary,10%);
+            text-decoration: none;
+          }
+        }
+      }
+      .dates{
+        margin: 0 0 30px;
+      }
+      .location{
+        margin: 0 0 30px;
+      }
+    }
+  }
+}

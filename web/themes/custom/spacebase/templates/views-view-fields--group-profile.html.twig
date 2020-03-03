@@ -1,0 +1,57 @@
+
+<div class="profile-photo">{{ fields.field_image.content }}</div>
+<h1>{{ fields.label.content }}</h1>
+<h2 class="segment">{{ fields.field_industry_segment.content }}</h2>
+<div class="location">{{ fields.field_headquarters_location_postal_code.content }}</div>
+
+
+
+<p>
+  {% if fields.field_linkedin.content|render|striptags|trim is not empty %}
+   <a href="{{ fields.field_linkedin.content|render|striptags|trim }}" target="_blank" class="btn btn-blank"><span class="icon"><i class="fab fa-linkedin"></i></span> <span class="text">LinkedIn </span></a>
+  {% endif %}
+   
+  {% if fields.field_website.content|render|striptags|trim is not empty %}
+   <a href="{{ fields.field_website.content|render|striptags|trim }}" target="_blank" class="btn btn-blank"><span class="icon"><i class="fas fa-globe"></i></span> <span class="text">Website </span></a>
+  {% endif %}
+   
+</p>
+
+
+ 
+  <span class="btn-block">
+  
+  {# drupal_region('groupmgt')#}
+  {% if logged_in == false %}
+    <a href="/user/register" class="btn btn-primary btn-block">Join SpaceBase</a>
+    <br/>
+    <a href="/user/login" class="btn btn-secondary btn-block">Sign in</a>
+  {% elseif group_links.leave %}
+    <a href="{{group_links.leave}}"  class="btn btn-primary btn-block">Leave organization</a>
+    {% if group_links.pending %}
+      <br/>
+      <span class="btn btn-info btn-block">Membership Pending</span>
+    {%endif %}
+  {% elseif group_links.join  %}
+    <a href="{{group_links.join}}" class="btn btn-primary btn-block">Join Organization</a>
+  {% endif %}
+  {% if logged_in %}
+  <br/>
+  <a href="/invite" class="btn btn-secondary btn-block">Invite New Members</a>
+  {% endif %}
+
+  </span>
+  
+  {# add logic to only show for orgs that are owned by admin, update email address if needed #}
+  {% if group_seeks_owner %}
+    <div class="claim">
+        The SpaceBase research team found this organization: 
+<a target="_email"
+href="mailto:feedback@spacebase.co?subject=Claim Organization&body=SpaceBase
+ Staff, %0D%0A%0D%0AThe organization “{{ group_name }}” should be under the 
+ownership of: %0D%0A%0D%0AHere's how you can verify that: %0D%0A%0D%0A ">recommend a new owner.</a>
+    </div>
+    {# fields.label.content comes with twig comments, 
+       so created new variable.#}  
+  {% endif %}
+

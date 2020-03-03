@@ -1,0 +1,14 @@
+{
+  "name": "drupal/spacebase_projects",
+  "type": "drupal-module",
+  "description": "Project functionality for Spacebase",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/spacebase_projects",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/spacebase_projects",
+    "source": "http://cgit.drupalcode.org/spacebase_projects"
+  },
+  "require": { }
+}

@@ -1,0 +1,10 @@
+id: applicant_confirm
+label: 'Confirm Applicant'
+status: true
+langcode: en
+type: user
+plugin: applicant_confirm
+dependencies:
+  module:
+    - user
+    - group_member_manager

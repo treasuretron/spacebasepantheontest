@@ -1,0 +1,110 @@
+<?php
+
+/**
+ * @file
+ * Contains spacebase_projects.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Component\Render\PlainTextOutput;
+use Drupal\Core\Form\FormStateInterface;
+
+
+/**
+ * Implements hook_help().
+ */
+function spacebase_projects_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the spacebase_projects module.
+    case 'help.page.spacebase_projects':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Project functionality for Spacebase') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_form_alter()
+ */
+function spacebase_projects_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  switch ($form_id) {
+    case 'group_project_group_add_form':
+      $form['actions']['submit']['#value'] = t('Create Project');
+      break;
+
+    case 'node_group_forum_topic_form':
+    case 'node_resources_form':
+      // Remove the "N/A" entry from the public_or_private field options
+      unset($form['field_public_or_private']['widget']['#options']['_none']);
+      break;
+
+    case 'node_group_forum_topic_edit_form':
+    case 'node_resources_edit_form':
+      $user = \Drupal::currentUser();
+      if (!$user->hasPermission('bypass node access')) {
+        // Remove all options except existing default unless user has bypass
+        // node access permission.
+        foreach ($form['field_public_or_private']['widget']['#options'] as $key => $value) {
+          if ($key != $form['field_public_or_private']['widget']['#default_value']) {
+            unset($form['field_public_or_private']['widget']['#options'][$key]);
+          }
+        }
+      }
+      else {
+        // Remove the "N/A" entry from the public_or_private field options
+        unset($form['field_public_or_private']['widget']['#options']['_none']);
+      }
+      break;
+
+  }
+
+}
+
+
+/**
+ * Implements hook_mail_edit_keys().
+ * Make it available to mail_edit to edit the template
+ */
+function spacebase_projects_mail_edit_templates() {
+  return [
+    'spacebase_projects.emails' => [
+      'new_content_projects_org' => t('Org admins notice: Project created in Org.'),
+      'new_content_projects' => t('Site admins notice: Project created.'),
+    ],
+  ];
+}
+
+/**
+ * Implements hook_mail().
+ */
+function spacebase_projects_mail($key, &$message, $params) {
+  $token_service = \Drupal::token();
+  $language_manager = \Drupal::languageManager();
+  $langcode = $message['langcode'];
+  $variables = ['user' => $params['account'], 'group' => $params['group']];
+
+  $language = $language_manager->getLanguage($params['account']->getPreferredLangcode());
+  $original_language = $language_manager->getConfigOverrideLanguage();
+  $language_manager->setConfigOverrideLanguage($language);
+  $mail_config = \Drupal::config('spacebase_projects.mail');
+
+  $token_options = ['langcode' => $langcode, 'clear' => TRUE];
+  $message['subject'] .= PlainTextOutput::renderFromHtml($token_service->replace($mail_config->get($key . '.subject'), $variables, $token_options));
+  $message['body'][] = $token_service->replace($mail_config->get($key . '.body'), $variables, $token_options);
+
+  $language_manager->setConfigOverrideLanguage($original_language);
+}
+
+function spacebase_projects_theme($existing, $type, $theme, $path) {
+  return [
+    'projects_pending_members_form' => [
+      'render element' => 'form',
+    ],
+  ];
+}
+

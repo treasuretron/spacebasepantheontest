@@ -1,0 +1,14 @@
+{
+  "name": "drupal/email_group_administrators",
+  "type": "drupal-module",
+  "description": "Administrative activities for group owners, starting with a daily email if they have a pending members.",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/email_group_administrators",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/email_group_administrators",
+    "source": "http://cgit.drupalcode.org/email_group_administrators"
+  },
+  "require": { }
+}

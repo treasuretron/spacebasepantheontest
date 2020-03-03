@@ -1,0 +1,51 @@
+name: spacebase
+recipe: drupal8
+proxy:
+  mailhog:
+    - mail.lemp.lndo.site
+services:
+  appserver:
+    xdebug: true
+    build:
+      - "mkdir /var/www/.platformsh && mkdir /var/www/.platformsh/bin"
+      - "curl -fsSL -o /var/www/.platformsh/bin/platform https://github.com/platformsh/platformsh-cli/releases/download/v3.26.0/platform.phar"
+      - "chmod ug+x /var/www/.platformsh/bin/platform"
+    overrides:
+      environment:
+        # Support debugging Drush with XDEBUG. Use lando drush to debug.
+        PHP_IDE_CONFIG: "serverName=appserver"
+        BEHAT_PARAMS: >-
+          {"extensions":{"Behat\\MinkExtension":{"base_url":"http://nginx/"},"Drupal\\DrupalExtension":{"drush":{"root":"/app/web"}}}}
+  mailhog:
+    type: mailhog
+    hogfrom:
+      - appserver    
+    portforward: 1026    
+tooling:
+  platform:
+    service: appserver
+    description: Run Platform CLI commands
+    cmd:
+      - /var/www/.platformsh/bin/platform
+    options:
+      passthrough: true
+  phplint:
+    service: appserver
+    cmd: /app/vendor/bin/phplint
+  phpcs:
+    service: appserver
+    cmd: /app/vendor/bin/phpcs
+  phpcbf:
+    service: appserver
+    cmd: /app/vendor/bin/phpcbf
+  phpunit:
+    service: appserver
+    cmd: /app/vendor/bin/phpunit
+  behat:
+    service: appserver
+    cmd: /app/vendor/bin/behat
+config:
+  via: nginx
+  webroot: web
+  database: mariadb:10.1
+  drush: path:/app/vendor/bin/drush

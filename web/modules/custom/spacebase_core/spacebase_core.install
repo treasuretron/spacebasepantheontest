@@ -1,0 +1,144 @@
+<?php
+
+use Drupal\group\Entity\GroupContent;
+use Drupal\Core\Utility\UpdateException;
+
+/**
+ * Update existing group forum and resource nodes to have public visibility.
+ */
+function spacebase_core_update_8025(&$sandbox) {
+
+  // Specify the content types we will process.
+  $types = ['group_forum_topic', 'resources'];
+
+  // Initialise the sandbox variables.
+  if (!isset($sandbox['max'])) {
+    // The total of nodes to process
+    $sandbox['max'] = \Drupal::entityQuery('node')->condition('type', $types, 'IN')->count()->execute();
+    // The id of the last node processed.
+    $sandbox['last'] = 0;
+    // The number of nodes processed so far.
+    $sandbox['count'] = 0;
+    // The number of nodes updated.
+    $sandbox['updated'] = 0;
+    // Log a message
+    \Drupal::logger('spacebase')->notice(t('Found @max nodes to process', ['@max'=>$sandbox['max']]));
+  }
+
+  // Get the public taxonomy term from this vocabulary.
+  $results = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadByProperties(['name' => 'Public', 'vid' => 'permissions_tags']);
+
+  if (!$results) {
+    throw new UpdateException(t('Create the term "Public" in the "Permissions tags" taxonomy before running this update.'));
+  }
+
+  $term = reset($results);
+
+  // Get the next batch of 50 nodes.
+  $nids = \Drupal::entityQuery('node')
+    ->condition('type', $types, 'IN')
+    ->condition('nid', $sandbox['last'], '>')
+    ->sort('nid', 'ASC')
+    ->range(0, 50)
+    ->execute();
+
+  if (count($nids)) {
+    $nodes =  \Drupal\node\Entity\Node::loadMultiple($nids);
+
+    foreach ($nodes as $node) {
+      // Set the field "field_public_or_private" to public if  not already set.
+      if (!$node->field_public_or_private->target_id) {
+        $node->field_public_or_private->entity = $term;
+        // Save updated node
+        $node->save();
+        $sandbox['updated']++;
+      }
+
+      $sandbox['count']++;
+    }
+
+    // Update sandbox info.
+    $sandbox['last'] = $node->id();
+    \Drupal::logger('spacebase')->notice(t('This batch: %num nodes, last=%nid', ['%num' => count($nids), '%nid' => $sandbox['last']]));
+  }
+  else {
+    // Force exit from batch processing.
+    $sandbox['count'] = $sandbox['max'];
+    \Drupal::logger('spacebase')->notice(t('No more nodes to process. Forced exit!'));
+  }
+
+  if ($sandbox['count'] < $sandbox['max']) {
+    // Set the progress to a value between 0 and 1.
+    $sandbox['#finished'] = $sandbox['count'] / $sandbox['max'];
+    // Ensure progress value does not get too close to completed.
+    if ($sandbox['#finished'] > 0.99) {
+      $sandbox['#finished'] = 0.99;
+    }
+  }
+  else {
+    $sandbox['#finished'] = 1;
+    $message = t('Updated %updated of %count nodes with public visibility', ['%updated'=>$sandbox['updated'], '%count'=>$sandbox['max']]);
+    \Drupal::logger('spacebase')->notice($message);
+    return $message;
+  }
+}
+
+/**
+ * Update the Organizations to have lat and long from address
+ * by resaving all groups after creating geocoding geofield.
+ * (High index number comes from having run the same update
+ * repeatedly for a variety of reasons.)
+ */
+function spacebase_core_update_8024(&$sandbox) {
+  $limit = 20; // batch 20 at a time
+  if (!isset($sandbox['progress'])) {
+    // The count of nodes visited so far.
+    $sandbox['progress'] = 0;
+  }
+
+  //should work too: foreach (Group::loadMultiple() as $group) {
+  $storage = \Drupal::entityTypeManager()->getStorage('group');
+
+  $gids = $storage->getQuery()
+    ->condition('type', 'organization_group')
+    ->range($sandbox['progress'], $limit)
+    //->condition('id', 100, '<')
+    //->condition('uid', 1, '>')
+    ->execute();
+
+  // If none left, we're done
+  if (count($gids) > 0 ) {
+
+    foreach ($storage->loadMultiple($gids) as $group) {
+      /** @var \Drupal\group\Entity\GroupInterface $group */
+      /** All automatic: geocode the map address from the address: */
+      \Drupal::logger('spacebase_core')->notice('Resave group ' . $group->id());
+
+      $storage->save($group);
+    }
+    $sandbox['progress'] += count($gids);
+    $sandbox['#finished'] = $sandbox['progress']/200; // sloppy adequate just to see it
+  } else {
+    $sandbox['#finished'] = true;
+  }
+}
+
+
+/**
+ * Truncate fontyourface_font
+ */
+function spacebase_core_update_8001() {
+  foreach (array('languages_supported', 'font_classification') as $vocab) {
+    $tids = \Drupal::entityQuery('taxonomy_term')
+      ->condition('vid', $vocab)
+      ->execute();
+
+    $controller = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+    $entities = $controller->loadMultiple($tids);
+    $controller->delete($entities);
+  }
+
+  if (db_table_exists('fontyourface_font')) {
+    db_query("TRUNCATE fontyourface_font");
+  }
+}

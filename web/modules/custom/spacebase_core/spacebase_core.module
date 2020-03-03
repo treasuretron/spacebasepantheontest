@@ -1,0 +1,925 @@
+<?php
+
+/**
+ * @file
+ * Contains spacebase_core.module.
+ */
+
+// @ToDo: these use statements from example, probably not all needed:
+// Use statements to support hook_entity_field_access.
+use Drupal\Core\Field\FieldDefinitionInterface;
+use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\Field\FieldItemListInterface;
+use Drupal\Core\Access\AccessResult;
+
+// Interfaces used by entities to declare "ownership".
+use Drupal\user\EntityOwnerInterface;
+use Drupal\user\UserInterface;
+
+// Use statements for hook_entity_test_access.
+use Drupal\Core\Entity\EntityInterface;
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
+use Drupal\views\Views;
+use Drupal\group\Entity\GroupContent;
+use Drupal\user\Entity\User;
+use Drupal\Component\Render\PlainTextOutput;
+use Drupal\views\ViewExecutable;
+
+use Drupal\Core\Queue\QueueFactory;
+use Drupal\Core\Queue\QueueInterface;
+use Drupal\Core\Datetime\DrupalDateTime;
+
+
+/**
+ * Implements hook_help().
+ */
+function spacebase_core_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the spacebase_core module.
+    case 'help.page.spacebase_core':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Core custom functionality for spacebase website') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+
+/** function _group_from_node($node)
+ *
+ * Returns the (one) group this node is part of (groups module allows
+ * nodes to belong to more than one group — we don't.)
+ */
+function _group_from_node($node) {
+
+  if ($node) {
+    $group_content = GroupContent::loadByEntity($node);
+    if (is_array($group_content)) {
+      $group_content = reset($group_content);
+      return $group_content->getGroup();
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Implements hook_comment_links_alter(),
+ *
+ * to remove the reply if the user isn't in the group  #131.
+ *
+ * This fires on node/39#comment-24
+ */
+function spacebase_core_comment_links_alter(array &$links) {
+    $account = \Drupal::currentUser();
+
+    //The reply button is on the node route; comments call it an entity
+    if ( $node = \Drupal::routeMatch()->getParameter('node') ) {
+    } else {
+      //comment/reply/node/52/field_reply/23
+      $node = \Drupal::routeMatch()->getParameter('entity');
+    }    //comment/reply/node/52/field_reply/23
+
+    $group = _group_from_node($node);
+    $variables['parent_groups'][$group->id()] = $group->label();
+    // Starting a thread and replying to someone elses, same permissions (now)
+    if (!$group->hasPermission('create group_node:group_forum_topic entity', $account)) {
+        unset($links['comment']['#links']['comment-reply']);
+    }
+}
+
+/**
+ * Implements hook_entity_field_access().
+ *
+ * #Pins-field-access - Only group Admins can set the pins.
+ *
+ */
+function spacebase_core_entity_field_access($operation, FieldDefinitionInterface $field_definition, AccountInterface $account, FieldItemListInterface $items = NULL) {
+
+  // @ToDo: TestTheAccess by returning here, and making sure it fails in AjaxToggleForm.
+  $result = AccessResult::neutral();
+
+  // Caching: unfortunately, group membership means we need to know
+  // if this user is an Admin of any groups, so user-specific cache:
+  $result->addCacheContexts(['user']);
+
+  // Edit the pin? Matches ability to edit the group (not the node)
+  // Forbid access to this field except for admins. Note that the
+  // toggle module wants to disable fields that users can view-not-edit ...
+  // We want to forbid those fields entirely.
+  if ($field_definition->getName() == 'field_pin_to_top') {
+    if ($operation == 'update') {
+      // 'edit' or  'update' coming from line 256 in ToggleEditableFormatter,
+      // which was originally 'edit' but should have been update.
+
+      // Need the node, to get the group, to see if $account is an Admin
+      if ($items) {
+        $node = $items->getEntity();
+
+        // Get the group, for new or existing nodes.
+        $group = '';
+        if ($node->isNew()) {
+          // Can't loadByEntity a node in the create-new form.
+          $group = \Drupal::routeMatch()->getParameter('group');
+        } else {
+          $group = _group_from_node($node);
+        }
+        if ($group->hasPermission('organization_group-admin[administer group]', $account)) {
+          $result = AccessResult::allowed();
+          return $result->addCacheContexts(['user']);
+        }
+      }
+      $result = AccessResult::forbidden();
+    }
+
+  }
+  return $result;
+
+}
+
+
+/** function _set_the_group_links($variables, $group) {
+ *
+ * A variety of pre-process type functions (specs are still shifting) need
+ * to set some variables based on the group.
+ *
+/** Thoughts on code duplication:
+
+ * The first version of this worked more like the group module's operations
+ * link code, which unfortunately is written in a way hard to reuse.
+ * I think the new way is simpler, and should be the last step for
+ * SpaceBase ...  easier for themers but less extensible.
+ *
+ * It follows this pattern:
+ * $variables['group_links']['group_manage_applicants']
+ * The variable is false or the URL, so links can be designed in template.
+ *
+ * Originally based on:
+ * modules/gnode/src/Plugin/GroupContentEnabler/GroupNode.php
+ * src/Plugin/GroupContentEnabler/GroupMembership.php
+ * Groups module might benefit
+ * from a more generalized approach that provides the links so that
+ * they can be grabbed by any function, rather than locked into the
+ * operations links function. See if as this evolves, something can be
+ * contributed back... @ToDo-Later
+ *
+ *
+ * @param array $variables
+ * @param $group \Drupal\group\Entity\Group $group
+ */
+function _set_the_group_links(&$variables, $group) {
+
+  $current_uri = \Drupal::request()->getRequestUri(); // @ToTest:
+  // This is for destinations ... do we want as much path as possible,
+  // like pages, when someone comes back after signing up? I think so, test
+  // use cases.
+  // Previously destination was /group/' . $group->id(); when this was simpler.
+  // $url = \Drupal\Core\Url::fromRoute('<current>');
+
+  $account = \Drupal::currentUser(); //or $variables['user']; ?
+  // Note: if users can administer a group, all permissions are true.
+
+  /** Group tabs need url repeatedly. Just a shortcut */
+  $variables['group_url'] = '/group/' . $group->id();
+
+  /** Edit Group, Add Resource can be done by non-member admins.
+   * If not, move inside getMember($account)
+   */
+  // Edit the group overall
+  // /group/x/edit
+  if ($group->hasPermission('edit group', $account)) {
+    $variables['group_links']['group_edit'] = '/group/' . $group->id() . '/edit';
+  }
+  if ($group->hasPermission('administer members', $account)) {
+    // @ToDo: review cache implications
+    $variables['group_links']['group_manage_members'] = '/group/' . $group->id() . '/members';
+
+    $ids = \Drupal::entityQuery('group_content')
+      ->condition('type',['group_content_type_569a59a77cd78', 'project_group-group_membership'], 'IN')
+      ->condition('gid', $group->id())
+      ->condition('group_roles', NULL, 'IS NULL')
+      ->execute();
+
+    if ($ids) {
+      $variables['group_links']['group_manage_applicants'] =  '/group/' . $group->id() . '/members';
+    }
+  }
+
+  // Links to add content to a group look like:
+  // group/20/content/create/group_node%3Aresources
+  // group/14/content/create/group_node%3Agroup_forum_topic
+  $ids = array('resources', 'group_forum_topic');
+  foreach ($ids as $id) {
+    $plugin_id = 'group_node:' . $id;
+
+    if ($group->hasPermission("create $plugin_id entity", $account)) {
+      $route_params = ['group' => $group->id(), 'plugin_id' => $plugin_id];
+      $url = new Url('entity.group_content.create_form', $route_params);
+      /* might remove this for resources, which also have a tab from the form */
+      $variables['group_links']['group_create_'. $id] =
+        $url->toString() . '?destination=' . $current_uri;
+    }
+  }
+
+  /* Leave and join depend on membership status AND permission */
+  if ($group->getMember($account)) {
+    // Leave
+    if ($group->hasPermission('leave group', $account)) {
+      $url =new Url('entity.group.leave', ['group' => $group->id()]);
+      $variables['group_links']['leave'] = $url->toString();
+    }
+    // Pending (can still Leave). Site-Admins won't get this.
+    if (!$group->hasPermission('view group_membership content', $account)) {
+      $variables['group_links']['pending'] = TRUE;
+    }
+    
+  } elseif ($group->hasPermission('join group', $account)) {
+    $url = new Url('entity.group.join', ['group' => $group->id()]);
+    $variables['group_links']['join'] = $url->toString();
+  }
+
+  // provide resource_type terms, for tabs in twig
+  // @ToDo-Refactor replace other times this older version above is called with the new one, I think,
+  $variables['resource_type'] = _prep_resources($group->bundle());
+
+  // Get total number of resources:
+  $view = Views::getView('organization_resources');
+  $view->setDisplay('block_2');  // No terms used in this display
+  $view->setArguments([$group->id()]);
+  $view->execute();
+  $variables['resource_total'] = $view->total_rows;
+
+  /* Is this group owned by User 1, needing a real owner? */
+  if ( $owner = $group->getOwner()->id() == 1 ) {
+    //ONLY Logged in spacebase site members can see
+    if ($account->id() > 0 ) {
+      $variables['group_seeks_owner'] = true;
+      $variables['group_name'] = $group->label();
+    }
+  }
+
+
+
+}
+
+// Get the resource type taxonomy tree names prepped for tabs
+// Specs changed, @ToDo replacing this with next one...
+function _get_resource_type($group_type) {
+  // provide resource_type terms, for tabs in twig
+  $vid = 'resource_type';
+  $var = [];
+  $terms =
+    \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid, 0, NULL, TRUE);
+  foreach ($terms as $term) {
+    $associated_group_types = $term->get('field_associated_group_types')->getValue();
+    $associated_group_types = array_column($associated_group_types, 'value');
+    if (in_array($group_type, $associated_group_types)) {
+      $var[] = $term->getName();
+    }
+  }
+  return $var;
+}
+
+// Get the resource type taxonomy tree names & descriptions prepped for display
+//@ToDo: needed repeatedly - could save almost nothing by caching this
+function _prep_resources($group_type) {
+  $vid = 'resource_type';
+  $var = [];
+  // in getStorage below,
+  // $load_entities defaults to false = faster, not complete objects.
+  // This is admin-created data, so treating it as pretty safe markup
+  $terms = \Drupal::entityTypeManager()->getStorage('taxonomy_term')->loadTree($vid, 0, NULL, TRUE);
+  foreach ($terms as $term) {
+    $associated_group_types = $term->get('field_associated_group_types')->getValue();
+    $associated_group_types = array_column($associated_group_types, 'value');
+    if (in_array($group_type, $associated_group_types)) {
+      $var[] = [
+        'name' => $term->getName(),
+        'description' =>  ['#markup' => $term->description->value]
+      ];
+    }
+  }
+  return $var;
+}
+
+/**
+ * Implements hook_form_alter() on behalf of spacebase_core.module.
+ */
+function spacebase_core_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  switch ($form_id) {
+    case 'user_register_form':
+      $form['actions']['submit']['#submit'][] = 'spacebase_core_user_registration_submit';
+      break;
+
+    case 'user-form':
+      $form['actions']['submit']['#submit'][] = 'spacebase_core_user_form_submit';
+      break;
+
+    case 'group-content-group-content-type-569a59a77cd78-add-form':
+    case 'group-content-group-content-type-569a59a77cd78-edit-form':
+      // Add a new member to an Organization / Edit
+      // for Org admin editing an Org-Member or Applicant
+      $form['org-owner'] = array(
+        '#type' => 'checkbox',
+        '#title' => t("Make this user the org's owner."),
+        '#required' => FALSE,
+        '#access' => \Drupal::currentUser()->hasPermission('bypass group access')
+      );
+      $form['path']['#access'] = false;
+      // Can't edit Admin, Verified, etc. This might come back?
+      //$form['group_roles']['#access'] = FALSE;
+      $form['actions']['submit']['#submit'][] = 'spacebase_core_org_owner_submit';
+      $form['actions']['submit']['#submit'][] = 'spacebase_core_organization_edit_user_submit';
+      break;
+
+    case 'group-content-group-content-type-569a59a77cd78-group-join-form':
+      $form['actions']['submit']['#submit'][] = 'spacebase_core_organization_join_submit';
+      break;
+
+    case 'group_content_group_content_type_569a59a77cd78_delete_form':
+      // The confirmation page mid- deleting a user. Just changing message (description)
+      $uid = $form_state->getFormObject()->getEntity()->entity_id->target_id;
+      $user = \Drupal\user\Entity\User::load($uid)->label();
+      $gid = $form_state->getFormObject()->getEntity()->gid->target_id;
+      $group = \Drupal\group\Entity\Group::load($gid)->label();
+      // module is not a class, so stick with t()
+      $form['description']['#markup'] = t("Are you sure you want to delete <em>@user</em> from <em>@group?</em>",
+        ['@user' => $user, '@group'=>$group]);
+      break;
+
+    case 'node_resources_edit_form':
+    case 'node_resources_form':
+      $form['revision_information']['#access'] = FALSE;
+      $form['actions']['submit']['#submit'][] = 'spacebase_core_resources_tab_redirect';
+
+      // Add a description to the Resource-type Tabs:
+      foreach ($form['field_tab']['widget']['#options'] as $tid => $value) {
+        //kint($value); // This is an object, being replaced with
+        // a string. @ToRefactor, possibly instead use:
+        // function hook_options_list_alter
+        $term =  \Drupal\taxonomy\Entity\Term::load($tid);
+        if ($descrip = $term->getDescription()) {
+          $form['field_tab']['widget']['#options'][$tid] =
+            $value . " <span class='descrip'>$descrip</span>";
+        }
+      }
+
+      break;
+
+    case 'private_message_add_form':
+      $form['message']['widget'][0]['#title'] = t('Response');
+      break;
+
+  }
+
+}
+
+/** Submit function to redirect to resources to specific Tab
+ * The resource "Tab" can be set in the form, so destination in link insuff.
+ */
+function spacebase_core_resources_tab_redirect(&$form, FormStateInterface $form_state) {
+  // An admin might be editing another user, don't use currentUser.
+  $node = $form_state->getFormObject()->getEntity();
+  $group = _group_from_node($node);
+  $field_name = $node->field_tab->view()[0]['#title'];
+  $field_name = str_replace(' ', '_',$field_name); // or more gen solu?
+  $url = url::fromUserInput("/group/" . $group->id() . "/resources/#" . $field_name);
+  $form_state->setRedirectUrl($url);
+
+  // Gets rid of destination, which is set for all the new group-related node types
+  \Drupal::request()->query->remove('destination');
+}
+
+/** Submit function when you make someone the Organization Owner
+ *  Default was to go back to edit page again.
+ */
+function spacebase_core_org_owner_submit(&$form, FormStateInterface $form_state) {
+  if ($form_state->getValue('org-owner')) {
+    $uid = $form_state->getValue('entity_id')[0]['target_id'];
+    $user =  \Drupal\user\Entity\User::load($uid);
+    $group_content_membership = $form_state->getFormObject()->getEntity();
+    $group = $group_content_membership->getGroup();
+
+    // Make uid the owner of the group
+    $group->setOwner($user);
+    $group->save();
+
+    // Do we want to auto-provide admin role? Ask Rich. For now, code is here, yes.
+    $group_content_membership->group_roles->setValue('organization_group-admin');
+    $group_content_membership->save(); // returns 2, SAVED_UPDATED, if working. Add test?
+
+    // Remove our main Admin, uid=1
+    // I don't check if uid=1 is a non-owning member, that's not a case today.
+    // removeMember Does nothing if not a member.
+    // Changing owners between real people will not remove the Admin status of the past owner,
+    // do that by hand if desired.
+    $group->removeMember(\Drupal\user\Entity\User::load(1));
+  }
+}
+
+/** Submit function to redirect users (always Org-Admins) to the org after editing a user.
+ *
+ * Similar to spacebase_core_organization_join_submit, but goes to member page.
+ *
+ */
+function spacebase_core_organization_edit_user_submit(&$form, FormStateInterface $form_state) {
+  $group_content_membership = $form_state->getFormObject()->getEntity();
+  $group = $group_content_membership->getGroup();
+
+  // Redirect
+  $url = url::fromUserInput("/group/" . $group->id() . "/members");
+  $form_state->setRedirectUrl($url);
+}
+
+/** Submit function to redirect user to profile after edit
+ *  Default was to go back to edit page again.
+ */
+function spacebase_core_user_form_submit(&$form, FormStateInterface $form_state) {
+  // An admin might be editing another user, don't use currentUser.
+  $id =  $form_state->getFormObject()->getEntity()->id();
+  $url = url::fromUserInput("/user/" . $id);
+  $form_state->setRedirectUrl($url);
+}
+
+/** Submit function to redirect user's to the org after joining.
+ *
+ * The entity in the form is the membership "group_content"
+ * that glues users to groups.
+ */
+function spacebase_core_organization_join_submit(&$form, FormStateInterface $form_state) {
+  $group_content_membership = $form_state->getFormObject()->getEntity();
+  $group = $group_content_membership->getGroup();
+
+  // Redirect
+  $form_state->setRedirect('entity.group.canonical', ['group' => $group->id()]);
+
+  // And add the role 'verified,' @ToSpec/ToDo this only if the $group blocks autoverify
+  /* No longer autoverify 20190516 This might become an option in the future,
+   * leaving for the moment 
+  $group_content_membership->group_roles->setValue('organization_group-verified');
+  $group_content_membership->save(); // returns 2, SAVED_UPDATED, if working. Add test?
+ */
+}
+
+/**
+ * Custom submit function for user registration
+ */
+function spacebase_core_user_registration_submit(&$form, FormStateInterface $form_state) {
+  drupal_get_messages(); // dumps the existing message, use ours...
+  drupal_set_message("An email has been sent to you with instructions to verify your email address and complete the sign-up process.");
+  $url = url::fromUserInput("/user/login");
+  $form_state->setRedirectUrl($url);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function spacebase_core_theme($existing, $type, $theme, $path) {
+  return [
+    'sb_search_page' => [
+      'variables' => [
+        'keywords' => '',
+        'fullpage' => '',
+        'orgs' => '',
+        'org_count' => '',
+        'people' => '',
+        'people_count' => '',
+      ],
+    ],
+    'org_advanced_search' => array(
+      'variables' => array('links' => array(), 'active' => ''),
+      'template' => 'block--org-advanced-search',
+    ),
+    // Imitate the forum view with twig-tweak driven variant
+    // Have to use underscores
+    // What is theme name? What is template?
+    'group_resources' => [
+      // Seems to work with underscores or dashes.
+      'template' => 'org-resources',
+      'variables' => [
+        'resource_type' => [], //_get_resource_type(),
+        'group_id' => '',
+        'group_links' => []
+      ],
+    ],
+    'menu_org_profile' => [
+      'template' => 'menu_org_profile',
+      'variables' => [
+        'active' => [],
+        'gid' => ''
+      ],
+    ],
+  ];
+}
+
+/**
+ * spacebase_core_queue_new_content_notifications
+ *
+ * Load the queue, waits < one minute for cron, then:
+ *  - send emails to all the new content for anyone who wants immediate emails.
+ *  - stores messages per user for daily summaries.
+ */
+function spacebase_core_queue_content_notifications($module, $key, $node) {
+  /** @var QueueFactory $queue_factory */
+  $queue_factory = \Drupal::service('queue');
+  /** @var QueueInterface $queue */
+  $queue = $queue_factory->get('spacebase_content_notifications');
+  $item = new \stdClass();
+  $item->nid = $node->id();
+  $item->module = $module;
+  $item->key = $key;
+  $queue->createItem($item);
+}
+
+/**
+ * spacebase_core_queue_new_content_notifications
+ *
+ * Load the queue, waits < one minute for cron, then:
+ *  - send emails to all the new content for anyone who wants immediate emails.
+ *  - stores messages per user for daily summaries.
+ */
+function spacebase_core_queue_content_notification_summaries($module, $user, $key, $node) {
+  /** @var QueueFactory $queue_factory */
+  $queue_factory = \Drupal::service('queue');
+  /** @var QueueInterface $queue */
+  $queue = $queue_factory->get('spacebase_content_notification_summaries');
+  $item = new \stdClass();
+  $item->uid = $user->id();
+  $item->module = $module;
+  $item->key = $key;
+  $queue->createItem($item);
+}
+
+/**
+ * spacebase_core_send_new_content_notifications
+ *
+ * Currently called (other options should work) after node_insert
+ * puts new nodes into queues — by the time the queue is called,
+ * we know whether that node is part of an Organization and so email
+ * Org Admins, or part of the Site and so email Site Admins.
+ */
+function spacebase_core_send_new_content_notifications($module, $key, $node) {
+  $params['node'] = $node;
+  $params['module'] = $module;
+
+  // Find the recipients who want their mail now,
+  // and the mail template key: either Org Admins or Site Admins.
+  $recipients = [];
+  $temp = GroupContent::loadByEntity($node); // {array}[0] for empty
+  $group_content = array_shift($temp);
+
+  if (isset($group_content)) {
+    $group = $group_content->getGroup();
+    $params['group'] = $group;
+    $params['link'] = $group->toUrl()->setAbsolute()->toString();
+    $key .= '_org';  // ex: new_content_news_org
+
+    // get ids for admins in the group as objects
+    foreach ($group->getMembers() as $membership) {
+      foreach ($membership->getRoles() as $rid => $role) {
+        if ($rid == 'organization_group-admin') {
+          $user = $membership->getUser();
+          // @ToSpec: _notify_me might want the group, not node type
+          if (_notify_me($user, 'now', $node->getType())) {
+            $recipients[] = $user;
+          }
+        }
+      }
+    }
+  } else {  // Posted Site-wide
+    $params['link'] = $node->toUrl()->setAbsolute()->toString();
+
+    /** email-google-group spec change:
+     *  "I want to get a copy of every email that the system sends all the time.
+     * Multiple copies would be fine." => send Site emails to uid 1 and uid 1 to
+     * a google group. Older code worked on localhost and commented out, expect it to return.
+     * All changes are in this file, marked by #email-google-group
+     */
+    /*** spec 1 code:
+    $config = \Drupal::config($module . '.settings');
+    $uids = $config->get('rcv-content-notification');
+     ****/
+    $uids = array(1);   // See #email-google-group
+    if (isset($uids)) {    // $uids null turns into anon, not ok.
+      foreach (User::loadMultiple($uids) as $user) {
+        if (_notify_me($user, 'now', $node->getType())) {
+          $recipients[] = $user;
+        }
+      }
+    }
+
+
+  }
+
+  // Notify now: emails to the $recipients with the correct $key
+  foreach ($recipients as $account) {
+    $langcode = $account->getPreferredLangcode();
+    $email = $account->getEmail();
+    $params['account'] = $account;
+    $result = \Drupal::service('plugin.manager.mail')->mail('spacebase_core', $key, $email, $langcode, $params);
+  }
+}
+
+
+/**
+ * function _spacebase_core_send_new_content_summaries()
+ *
+ * Fired by cron once a day, sends the summaries.
+ */
+function _spacebase_core_send_new_content_summaries() {
+
+  // @ToDo: This might be replaced with a hook that draws the same data that is
+  // currently in hook_node_insert.
+  $notification_config = [
+    'blog_post' => [
+      'module' => 'spacebase_blogs',
+      'key' => 'new_content_blogs',
+      'display' => 'Blogs'
+    ],
+    'event' => [
+      'module' => 'spacebase_events',
+      'key' => 'new_content_events',
+      'display' => 'Events'
+    ],
+    'sb_news_article' => [
+      'module' => 'spacebase_news',
+      'key' => 'new_content_news',
+      'display' => 'News articles'
+    ],
+    'sb_project' => [
+      'module' => 'spacebase_projects',
+      'key' => 'new_content_projects',
+      'display' => 'Projects'
+    ],
+    'resources' => [
+      'module' => 'spacebase_resources',
+      'key' => 'new_content_resources',
+      'display' => 'Resources'
+    ],
+    'sb_video' => [
+      'module' => 'spacebase_videos',
+      'key' => 'new_content_videos',
+      'display' => 'Videos'
+    ],
+  ];
+
+
+
+  // Show summaries for yesterday. 
+  // Uses site timezone format.
+  $date = new DrupalDateTime('1 day ago'); // Runs just after midnight for yeste
+  $day_start = strtotime($date->format('Y-m-d 00:00:00'));
+  $day_end = strtotime($date->format('Y-m-d 23:59:59'));
+  $nids = \Drupal::entityQuery('node')
+    ->condition('created', array($day_start, $day_end), 'BETWEEN')
+    ->condition('status', 1)
+    ->execute();
+
+  // TEST ... cut this log out once working
+/*
+  \Drupal::logger('spacebase_core')->notice('In _spacebase_core_send_new_content_summaries: ' .
+    "| Date: " . strtotime($date->format('Y-m-d H:m:s')) .
+     " or " . $date->format('Y-m-d H:m:s') .
+    "| day_start: " .  $day_start . " or " . $date->format('Y-m-d 00:00:00') .
+    "| day_end: " . $day_end . " or " . $date->format('Y-m-d 23:59:59') .
+    "| Plain e: " . $date->format('Y-m-d H:m:s e') .
+    "| Plain P: " . $date->format('Y-m-d H:m:s P') .
+    "| short"  . $date->format('short')
+   );
+*/
+
+  $nodes = entity_load_multiple('node', $nids);
+  $summaries = [];
+  foreach ($nodes as $node) {
+    $temp = GroupContent::loadByEntity($node); // {array}[0] for empty
+    $group_content = array_shift($temp);
+
+    // !!! This seems like a spot to call a hook, so that the content modules do
+    // something similar to hook_insert.  @ToDo
+    $type = $node->getType();
+    $module = $notification_config[$type]['module'];
+
+
+    if (isset($group_content)) {
+      $group = $group_content->getGroup();
+      $params['group'] = $group;
+
+      // get ids for admins in the group as objects
+      foreach ($group->getMembers() as $membership) {
+        foreach ($membership->getRoles() as $rid => $role) {
+          if ($rid == 'organization_group-admin') {
+            $user = $membership->getUser();
+            if (_notify_me($user, 'daily', $type)) {
+              $summaries[$user->id()]['group'][$type][] = _get_notification_line($node, $type, $group);
+            }
+          }
+        }
+      }
+    } else {  // Posted Site-wide
+      /** #email-google-group override
+      $config = \Drupal::config($module . '.settings');
+      $uids = $config->get('rcv-content-notification');
+       **/
+      $uids = array(1); // Note: (1,83) would make uid 83 also rcv Site emails
+      if ($uids !== null) {
+        foreach (User::loadMultiple($uids) as $user) {
+          if (_notify_me($user, 'daily', $type)) {
+            $summaries[$user->id()]['site'][$type][] = _get_notification_line($node);
+          }
+        }
+      } else {
+        \Drupal::logger('spacebase_core')->notice('No users set in rcv-content-notification for ' . $module);
+      }
+    }
+
+    //Note: $node->getOwner(); = we should block content you create yourself? @ToDo
+  }
+
+  // _generate_email_list and send email to each user 
+  foreach ($summaries as $uid => $user_summary) {
+    // Send emails to users
+    $params['list'] = _generate_email_list($user_summary, $notification_config);
+    $account = User::load($uid);
+    $email = $account->getEmail();
+    /** #email-google-group @ToDo**/
+    if ($uid == 1) {
+      $email = 'all-editor-mail@spacebase.co';
+    }
+    $params['account'] = $account;
+    $params['node'] = 'na';
+    $key = 'new_content_summary';
+    $langcode = $account->getPreferredLangcode();
+
+    // unlike 'now' emails that go to their content_type module,
+    // summaries use a template here:
+    $params['module'] = 'spacebase_core';
+    \Drupal::logger('spacebase_core')->notice('In _spacebase_core_send_new_content_summaries: ' . $key . ", " . $email );
+    // @ToDo: could put this into a queue instead of sending immediately.
+    $result = \Drupal::service('plugin.manager.mail')->mail('spacebase_core', $key, $email, $langcode, $params);
+  }
+}
+
+/**
+ * Implements hook_mail_edit_keys().
+ * Make it available to mail_edit to edit the template.
+ */
+function spacebase_core_mail_edit_templates() {
+  return [
+    'spacebase_core.emails' => [
+      'new_content_summary' => t('Org and Site admins new content summary.'),
+    ],
+  ];
+}
+
+
+/**
+ * function _notify_me($user, $when, $type)
+ *
+ * Boolean: notify this user for this time ('now' || 'daily') for this type.
+ * @ToDo Nothing implemented to check for $type yet. spec's needed.
+ */
+function _notify_me($user, $when, $type) {
+  $prefs = $user->field_notification_prefs->getValue();
+  foreach ($prefs as $pref) {
+    if ($pref['value'] == $when) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * _get_notification_line($node)
+ *
+ * Gets one line for the daily summary, for that node.
+ * @ToDo: HTML or Text Emails
+ */
+function _get_notification_line($node, $type=null, $group=null) {
+  if (isset($group) && $type == 'resources') {
+    return $node->getTitle() . ": " . $group->toUrl()->setAbsolute()->toString();
+  } else {
+    return $node->getTitle() . ": " . $node->toUrl()->setAbsolute()->toString();
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function spacebase_core_mail($key, &$message, $params) {
+  $token_service = \Drupal::token();
+  $langcode = $message['langcode'];
+  $token_variables = [
+    'user' => $params['account'],
+    'node' => $params['node']
+  ];
+  if (isset($params['group'])) {
+    $token_variables['group'] = $params['group'];
+  }
+  $mail_config = \Drupal::config($params['module'] . '.emails');
+  $token_options = ['langcode' => $langcode,'clear' => TRUE];
+  $body = $token_service->replace($mail_config->get($key . '.body'), $token_variables, $token_options);
+  // if it's a summary email, insert the LIST into the template
+  if (isset($params['list'])) {
+    $message['body'][] = str_replace('[LIST]', $params['list'], $body);
+  } else {
+    $message['body'][] = $body;
+  }
+  $message['subject'] .= PlainTextOutput::renderFromHtml($token_service->replace($mail_config->get($key . '.subject'), $token_variables, $token_options));
+}
+
+
+/** _generate_email_list($user_summary)
+ *
+ * Generate the summary list for one user.
+ * @ToDo: return the site and group lists separately, so that the $headers text can go in the email template.
+ */
+function _generate_email_list($user_summary, $notification_config) {
+
+  // Prep the List of content:
+  $headers = array(
+    'site'=>'New Site-Wide Content',
+    'group'=>'New Content in Your Groups'
+  );
+
+  $list = '';
+  foreach ($headers as $k=>$h2) {
+    if (isset($user_summary[$k])) {
+      $list .= "<p><strong>$h2</strong></p>\n\r";
+      foreach ($user_summary[$k] as $type => $contents) {
+        $list .= $notification_config[$type]['display'] . ":\n\r";
+        foreach ($contents as $line) {
+          $list .= "- " . $line . "\n\r";
+        }
+      }
+    }
+  }
+  return $list;
+}
+
+/**
+ * Implements hook_cron().
+ *
+ * Similar to email_group_administrators... but not the same.
+ * Cron runs often. Send an email right after midnight: don't let it drift.
+ * Send emails a maximum of once every 24 hours (easily changed below)
+ * Current variant loosely aims for midnight
+ * by running only during am hours,
+ * and no more than once every 13 hours.
+ * Not clear what the ideal use case is, 4:50 pm might make more sense?
+ */
+function spacebase_core_cron() {
+
+  $windowMin = 0; // The earliest hour ok for this cron to send summaries
+  $windowMax = 3; // how long might cron not run, in hours, before we give up.
+                  // @ToRefactor: this, and email_group_administators, 
+                  // could put work in queue
+                  // instead of use window and $next_execution time ?
+  $request_time = \Drupal::time()->getRequestTime();  // timestamp
+  // @ToRefactor: this and _spacebase_core_send_new_content_summaries both deal in
+  // times and timezones, not sure it's ready to flex to any server time yet.
+  $hour = \Drupal::service('date.formatter')->format(
+    $request_time, 'custom', 'H');
+  $interval = 3600 * (1 + $windowMax - $windowMin); // or 24 - Max + Min
+
+
+  // TEST = run this every cron for testing?
+  $TEST = 0; // 24 * 3600;;
+  //$windowMax = 24;
+
+
+  // Run this during a window after midnight NZ (or adjust to different hours)
+  if ($windowMin <= $hour && $hour <= $windowMax) {
+    $cron_config = \Drupal::configFactory()->getEditable('spacebase_core.settings');
+
+    //## Access config to send only occassionally
+    // Check that it hasn't run in the last (24 - windowDiff) hours
+    $next_execution = \Drupal::state()->get('spacebase_core.next_execution');
+    \Drupal::logger('spacebase_core')->notice('CRON Next execution is ' . $next_execution);
+
+    $next_execution = !empty($next_execution) ? $next_execution : 0;
+    //\Drupal::state()->set('spacebase_core.next_execution', REQUEST_TIME);
+
+    \Drupal::logger('spacebase_core')->notice('CRON Request, hours is '. $hour . ', Time is ' . $request_time .  ',  after an interval of ' . $interval . ' seconds.');
+
+    if ( ($request_time + $TEST) >= $next_execution ) {
+
+      //TEST
+      \Drupal::logger('spacebase_core')->notice('CRON execution occuring at ' . $request_time);
+
+      // Do It Now
+      _spacebase_core_send_new_content_summaries();
+
+      // Set the earliest time to run this again outside the window.
+      // Might go back to this. But 24 hours seems non-configurable right now.
+      // $interval = $cron_config->get('content_notifications_interval');
+      // Default to an hourly min time between emails.
+      \Drupal::state()->set('spacebase_core.next_execution', $request_time + $interval);
+
+    }
+  }
+}

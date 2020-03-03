@@ -1,0 +1,8 @@
+name: 'Group Member Manager'
+type: module
+description: "Allows group Admins to reject or confirm applicants: Includes actions that could be implemented by other modules[?] in other settings. (Considered, not implemented: plus a fields view adding a form element to each row of a group's member view)"
+core: 8.x
+package: 'Group'
+dependencies:
+  - group
+  - views

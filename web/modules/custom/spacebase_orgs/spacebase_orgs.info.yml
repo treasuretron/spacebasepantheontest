@@ -1,0 +1,5 @@
+name: 'Spacebase Organizations'
+type: module
+description: 'Organization functionality for Spacebase.'
+core: 8.x
+package: 'Spacebase'

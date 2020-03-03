@@ -1,0 +1,14 @@
+{
+  "name": "drupal/spacebase_facebook",
+  "type": "drupal-module",
+  "description": "Facebook integration with Spacebaase",
+  "keywords": ["Drupal"],
+  "license": "GPL-2.0+",
+  "homepage": "https://www.drupal.org/project/spacebase_facebook",
+  "minimum-stability": "dev",
+  "support": {
+    "issues": "https://www.drupal.org/project/issues/spacebase_facebook",
+    "source": "http://cgit.drupalcode.org/spacebase_facebook"
+  },
+  "require": { }
+}

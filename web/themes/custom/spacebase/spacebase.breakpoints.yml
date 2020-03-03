@@ -1,0 +1,18 @@
+spacebase.mobile:
+  label: mobile
+  mediaQuery: ''
+  weight: 0
+  multipliers:
+    - 1x
+spacebase.tablet:
+  label: tablet
+  mediaQuery: 'all and (min-width: 800px)'
+  weight: 1
+  multipliers:
+    - 1x
+spacebase.desktop:
+  label: desktop
+  mediaQuery: 'all and (min-width: 1200px)'
+  weight: 2
+  multipliers:
+    - 1x

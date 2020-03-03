@@ -1,0 +1,12 @@
+{%
+  set classes = [
+    'parallax-window',
+  ]
+%}
+<section{{ attributes.addClass(classes) }}  data-parallax="scroll" data-image-src="{{ file_url(content.field_background_image.0['#item'].entity.uri.value) }}">
+  <div class="container">
+  {% block content %}
+    {{ content.body }}
+  {% endblock %}
+  </div>
+</section>

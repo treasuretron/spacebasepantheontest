@@ -1,0 +1,15 @@
+
+{%
+  set classes = [
+    'intro-text',
+    'clearfix',
+  ]
+%}
+<section{{ attributes.addClass(classes) }}>
+  <div class="container">
+  {% block content %}
+    {{ content }}
+  {% endblock %}
+  </div>
+</section>
+

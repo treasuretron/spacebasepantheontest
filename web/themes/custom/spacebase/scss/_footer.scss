@@ -1,0 +1,54 @@
+.footer-top{
+  background: $grey;
+  color: $text-light;
+  padding: 40px 0 50px;
+  font-size: 14px;
+  a{
+    color: $text-light;
+  }
+  h2{
+    font-size: 16px;
+    font-weight: 500;
+    color: lighten($text-light,10%);
+  }
+  ul.menu{
+    li{
+      a{
+        font-weight: 300;
+       &:active,&:focus,&:hover{
+         background: rgba(255,255,255,0.1);
+         color: lighten($text-light,20%);
+       }
+      } 
+    }
+    @media screen and (max-width: 767px) {
+      margin-bottom: 25px;
+    }
+  }
+}
+
+.footer{
+  background: $grey-dark;
+  border: none;
+  color: $text-light;
+  font-size: 14px;
+  margin: 0;
+  line-height: 30px;
+  .social-links{
+    z-index: 1;
+    @media screen and (min-width: 768px) {
+      float: right;
+      a:last-child{
+        margin-right: 0;
+      }
+    }
+    a{
+      color: $text-light;
+      font-size: 30px;
+      margin: 0 10px;
+      &:active,&:focus,&:hover{
+       color: lighten($text-light,20%);
+      }
+    }
+  }
+}

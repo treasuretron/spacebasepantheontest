@@ -1,0 +1,7 @@
+pending_members:
+  version: 1.x
+  js:
+    js/pending-members.js: {}
+  dependencies:
+    - core/jquery
+    - core/jquery.once

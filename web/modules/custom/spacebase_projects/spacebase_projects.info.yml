@@ -1,0 +1,5 @@
+name: 'Spacebase Projects'
+type: module
+description: 'Project functionality for Spacebase'
+core: 8.x
+package: 'Spacebase'

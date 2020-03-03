@@ -1,0 +1,5 @@
+name: 'Spacebase Search'
+type: module
+description: 'Search functionality for Spacebase.'
+core: 8.x
+package: 'Spacebase'
