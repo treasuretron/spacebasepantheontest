@@ -3386,16 +3386,16 @@
         },
         {
             "name": "drupal/core",
-            "version": "8.8.2",
+            "version": "8.8.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/drupal/core.git",
-                "reference": "f997857003276c2ae6d27db30f0eab9c7dd10e62"
+                "reference": "77971de6d6ade7366cdd3fadfc16c5d02e531446"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/drupal/core/zipball/f997857003276c2ae6d27db30f0eab9c7dd10e62",
-                "reference": "f997857003276c2ae6d27db30f0eab9c7dd10e62",
+                "url": "https://api.github.com/repos/drupal/core/zipball/77971de6d6ade7366cdd3fadfc16c5d02e531446",
+                "reference": "77971de6d6ade7366cdd3fadfc16c5d02e531446",
                 "shasum": ""
             },
             "require": {
@@ -3612,7 +3612,7 @@
                 "GPL-2.0-or-later"
             ],
             "description": "Drupal is an open source content management platform powering millions of websites and applications.",
-            "time": "2020-02-01T19:51:15+00:00"
+            "time": "2020-03-04T18:01:37+00:00"
         },
         {
             "name": "drupal/core_views_facets",
@@ -6091,7 +6091,7 @@
             "source": {
                 "type": "git",
                 "url": "https://git.drupalcode.org/project/password_policy.git",
-                "reference": "c8b946fa61ae636f18926905e3ed3ca12440927a"
+                "reference": "454256795d557742af97e3acfb45f4b1cd7f0399"
             },
             "require": {
                 "drupal/core": "^8.5.0",
@@ -6103,8 +6103,8 @@
                     "dev-3.x": "3.x-dev"
                 },
                 "drupal": {
-                    "version": "8.x-3.0-alpha5+20-dev",
-                    "datestamp": "1580150447",
+                    "version": "8.x-3.0-alpha5+21-dev",
+                    "datestamp": "1582574318",
                     "security-coverage": {
                         "status": "not-covered",
                         "message": "Dev releases are not covered by Drupal security advisories."
@@ -6142,7 +6142,7 @@
             "support": {
                 "source": "https://git.drupalcode.org/project/password_policy"
             },
-            "time": "2020-02-24T19:57:25+00:00"
+            "time": "2020-03-04T22:23:25+00:00"
         },
         {
             "name": "drupal/pathauto",
