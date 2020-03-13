@@ -13423,16 +13423,16 @@
         },
         {
             "name": "integratedexperts/behat-screenshot",
-            "version": "0.7.2",
+            "version": "0.7.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/integratedexperts/behat-screenshot.git",
-                "reference": "37f2c9c43122c188ce604d1555968b6deaa422dc"
+                "reference": "52336b4ce53ab768074340aa9f628668950ead89"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/integratedexperts/behat-screenshot/zipball/37f2c9c43122c188ce604d1555968b6deaa422dc",
-                "reference": "37f2c9c43122c188ce604d1555968b6deaa422dc",
+                "url": "https://api.github.com/repos/integratedexperts/behat-screenshot/zipball/52336b4ce53ab768074340aa9f628668950ead89",
+                "reference": "52336b4ce53ab768074340aa9f628668950ead89",
                 "shasum": ""
             },
             "require": {
@@ -13468,7 +13468,7 @@
                 }
             ],
             "description": "Behat Context to capture screenshots from failed tests",
-            "time": "2018-05-30T06:56:55+00:00"
+            "time": "2020-03-12T12:06:40+00:00"
         },
         {
             "name": "jcalderonzumba/gastonjs",
